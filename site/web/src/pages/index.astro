@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
+import Squiggle from '../components/Squiggle.astro';
 import { couple, wedding, weekend } from '../data/wedding.js';
 ---
 <Base>
@@ -13,10 +14,10 @@ import { couple, wedding, weekend } from '../data/wedding.js';
     </div>
   </section>
 
-  <section id="weekend" class="section container">
-    <h2>The Weekend</h2>
-    <hr class="divider" />
-    <ol class="events">
+  <section id="weekend" class="section">
+    <h2 class="weekend-title container">The Weekend</h2>
+    <Squiggle />
+    <ol class="events container">
       {weekend.map((event) => (
         <li class="event">
           <p class="eyebrow">{event.day}</p>
@@ -59,12 +60,16 @@ import { couple, wedding, weekend } from '../data/wedding.js';
   .hero h1 em {
     color: var(--accent);
   }
+  .weekend-title {
+    margin-bottom: 1.25rem;
+    font-size: clamp(2.5rem, 7vw, 4rem);
+  }
   .events {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
     gap: 3rem 2rem;
-    margin: 0;
-    padding: 0;
+    margin: 3rem auto 0;
+    padding: 0 1.25rem;
     list-style: none;
   }
   .event p {
