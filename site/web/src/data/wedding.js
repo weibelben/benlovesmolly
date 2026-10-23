@@ -96,5 +96,19 @@ export const registries = [
   { label: '[Registry Name]', url: '#' },
 ];
 
-// Drop photos in public/images/gallery/ and list them here.
-export const gallery = [];
+// Every photo in src/assets/gallery/ shows up in the gallery. Photos listed here
+// come first, in this order, with their description; any others follow after.
+// `ratio` and `position` crop a photo, e.g. to cut app UI out of a screenshot.
+export const gallery = [
+  { file: 'rainbow.jpg', alt: 'Ben and Molly hugging on a crowded lawn under a double rainbow.' },
+  { file: 'halloween.jpg', alt: 'Ben and Molly in Halloween costumes: a pink dress, and a green-faced witch with a broom.' },
+  { file: 'driveway_rings.jpg', alt: 'A goofy driveway selfie of Ben and Molly showing off their rings.' },
+  { file: 'wisconsin_table.jpg', alt: 'Ben and Molly at a Wisconsin W mosaic table in front of a planted aquarium.' },
+  { file: 'sleeping_bags.jpg', alt: 'Ben and Molly grinning from inside their sleeping bags.' },
+  {
+    file: 'ring_cam_proposal.jpg',
+    alt: 'Doorbell camera view of the proposal inside a house under construction.',
+    ratio: '1 / 1',
+    position: '50% 14%',
+  },
+];

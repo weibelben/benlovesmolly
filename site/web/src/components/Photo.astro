@@ -1,9 +1,24 @@
 ---
 // Renders a photo, or a soft placeholder block until real photos are added.
-const { src, alt = '', ratio = '3 / 2', label = 'Photo coming soon' } = Astro.props;
+// Pass an imported image (from src/assets) to have Astro resize it and strip its
+// metadata at build time; a plain URL string is used as-is.
+import { Image } from 'astro:assets';
+
+const {
+  src,
+  alt = '',
+  ratio = '3 / 2',
+  position = 'center',
+  sizes = '100vw',
+  label = 'Photo coming soon',
+} = Astro.props;
+
+const style = `${ratio ? `aspect-ratio: ${ratio}; ` : ''}object-position: ${position}`;
 ---
-{src ? (
-  <img class="photo" src={src} alt={alt} loading="lazy" style={`aspect-ratio: ${ratio}`} />
+{typeof src === 'object' ? (
+  <Image class="photo" src={src} alt={alt} widths={[400, 800, 1200, 1600]} sizes={sizes} loading="lazy" style={style} />
+) : src ? (
+  <img class="photo" src={src} alt={alt} loading="lazy" style={style} />
 ) : (
   <div class="photo placeholder" style={`aspect-ratio: ${ratio}`} role="img" aria-label={alt || label}>
     <span>{label}</span>
@@ -11,9 +26,10 @@ const { src, alt = '', ratio = '3 / 2', label = 'Photo coming soon' } = Astro.pr
 )}
 
 <style>
-  .photo {
+  :global(.photo) {
     display: block;
     width: 100%;
+    height: auto;
     object-fit: cover;
   }
   .placeholder {

@@ -3,8 +3,17 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import { gallery } from '../data/wedding.js';
 
-// Show a few placeholder tiles until real photos are listed in wedding.js.
-const tiles = gallery.length ? gallery : Array.from({ length: 6 }, () => ({}));
+// Every image in src/assets/gallery/, keyed by file name.
+const files = import.meta.glob('../assets/gallery/*.{jpg,jpeg,png,webp,avif}', { eager: true, import: 'default' });
+const images = Object.fromEntries(Object.entries(files).map(([path, image]) => [path.split('/').pop(), image]));
+
+// Listed photos first, in gallery order, then anything else in the folder.
+const listed = gallery.filter((photo) => images[photo.file]);
+const unlisted = Object.keys(images)
+  .filter((file) => !gallery.some((photo) => photo.file === file))
+  .sort()
+  .map((file) => ({ file, alt: '' }));
+const photos = [...listed, ...unlisted];
 ---
 <Base title="Gallery">
   <header class="page-title container">
@@ -14,20 +23,169 @@ const tiles = gallery.length ? gallery : Array.from({ length: 6 }, () => ({}));
 
   <section class="container">
     <ul class="tiles">
-      {tiles.map((photo) => (
-        <li><Photo src={photo.src} alt={photo.alt} ratio="1 / 1" /></li>
+      {photos.map((photo) => (
+        <li>
+          <button class="tile" type="button" aria-label={photo.alt ? `View photo: ${photo.alt}` : 'View photo'}>
+            <Photo
+              src={images[photo.file]}
+              alt={photo.alt}
+              ratio={photo.ratio ?? null}
+              position={photo.position}
+              sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 33vw"
+            />
+          </button>
+        </li>
       ))}
     </ul>
   </section>
+
+  <dialog class="lightbox" aria-label="Photo viewer">
+    <img class="full" alt="" />
+    <button class="close" type="button" aria-label="Close">×</button>
+    <button class="nav prev" type="button" aria-label="Previous photo">‹</button>
+    <button class="nav next" type="button" aria-label="Next photo">›</button>
+  </dialog>
 </Base>
 
+<script>
+  const tiles = [...document.querySelectorAll<HTMLButtonElement>('.tile')];
+  const dialog = document.querySelector<HTMLDialogElement>('.lightbox')!;
+  const full = dialog.querySelector<HTMLImageElement>('.full')!;
+  let current = 0;
+
+  // Show tile i full-size, keeping any crop the tile has (like the ring-cam screenshot).
+  function show(i: number) {
+    current = (i + tiles.length) % tiles.length;
+    const img = tiles[current].querySelector('img')!;
+    full.srcset = img.srcset;
+    full.sizes = '100vw';
+    full.src = img.src;
+    full.alt = img.alt;
+    full.style.cssText = img.style.cssText;
+  }
+
+  tiles.forEach((tile, i) =>
+    tile.addEventListener('click', () => {
+      show(i);
+      dialog.showModal();
+    }),
+  );
+
+  dialog.querySelector('.close')!.addEventListener('click', () => dialog.close());
+  dialog.querySelector('.prev')!.addEventListener('click', () => show(current - 1));
+  dialog.querySelector('.next')!.addEventListener('click', () => show(current + 1));
+
+  // Clicking the dark area around the photo closes it.
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') show(current - 1);
+    if (event.key === 'ArrowRight') show(current + 1);
+  });
+
+  let touchX: number | null = null;
+  dialog.addEventListener('touchstart', (event) => (touchX = event.touches[0].clientX), { passive: true });
+  dialog.addEventListener('touchend', (event) => {
+    if (touchX === null) return;
+    const dx = event.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+</script>
+
 <style>
+  /* Columns rather than a grid, so each photo keeps its own shape. */
   .tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-    gap: 0.75rem;
+    columns: 3 16rem;
+    column-gap: 0.75rem;
     margin: 0 0 4rem;
     padding: 0;
     list-style: none;
+  }
+  .tiles li {
+    margin-bottom: 0.75rem;
+    break-inside: avoid;
+  }
+  .tile {
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: zoom-in;
+  }
+  .tile :global(.photo) {
+    transition: opacity 0.2s ease;
+  }
+  .tile:hover :global(.photo) {
+    opacity: 0.88;
+  }
+  .tile:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+  }
+  .lightbox {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+  .lightbox::backdrop {
+    background: rgba(24, 21, 18, 0.92);
+  }
+  .full {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 92vw;
+    max-height: 88vh;
+    object-fit: cover;
+  }
+  .lightbox button {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    font-family: var(--serif);
+    font-size: 2.25rem;
+    line-height: 1;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .lightbox button:hover {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  .close {
+    top: 1rem;
+    right: 1rem;
+  }
+  .nav {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .prev {
+    left: 1rem;
+  }
+  .next {
+    right: 1rem;
+  }
+  /* Keep the page behind from scrolling while a photo is open. */
+  :global(html:has(dialog[open])) {
+    overflow: hidden;
   }
 </style>
