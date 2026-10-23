@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import { thingsToDo } from '../data/wedding.js';
+---
+<Base title="Things to Do">
+  <header class="page-title container">
+    <h1>Things to Do</h1>
+    <hr class="divider" />
+    <div class="prose">
+      <p>[A welcome note for out-of-town guests.]</p>
+    </div>
+  </header>
+
+  {thingsToDo.map((category) => (
+    <section class="category">
+      <Photo ratio="4 / 1" />
+      <div class="container">
+        <h2>{category.title}</h2>
+        <div class="groups">
+          {category.groups.map((group) => (
+            <div>
+              <h3>{group.heading}</h3>
+              <ul>
+                {group.items.map((item) => <li>{item}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+</Base>
+
+<style>
+  .category {
+    padding-bottom: 3rem;
+    text-align: center;
+  }
+  .category h2 {
+    margin-top: 2.5rem;
+  }
+  .category :global(.photo) {
+    min-height: 10rem;
+  }
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 2rem;
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+</style>

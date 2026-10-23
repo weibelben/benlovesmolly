@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import { gallery } from '../data/wedding.js';
+
+// Show a few placeholder tiles until real photos are listed in wedding.js.
+const tiles = gallery.length ? gallery : Array.from({ length: 6 }, () => ({}));
+---
+<Base title="Gallery">
+  <header class="page-title container">
+    <h1>Gallery</h1>
+    <hr class="divider" />
+  </header>
+
+  <section class="container">
+    <ul class="tiles">
+      {tiles.map((photo) => (
+        <li><Photo src={photo.src} alt={photo.alt} ratio="1 / 1" /></li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 0.75rem;
+    margin: 0 0 4rem;
+    padding: 0;
+    list-style: none;
+  }
+</style>
