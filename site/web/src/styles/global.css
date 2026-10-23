@@ -1,0 +1,130 @@
+@import '@fontsource/cormorant-garamond/400.css';
+@import '@fontsource/cormorant-garamond/400-italic.css';
+@import '@fontsource/cormorant-garamond/600.css';
+@import '@fontsource/jost/400.css';
+@import '@fontsource/jost/500.css';
+
+:root {
+  --brand: #5e6b52;
+  --brand-dark: #48533e;
+  --accent: #b9926b;
+  --text: #2f2a26;
+  --muted: #6b635b;
+  --line: #e6dfd5;
+  --paper: #faf7f2;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Jost', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--paper);
+}
+
+img {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+}
+
+h2 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.9rem, 4.5vw, 2.75rem);
+}
+
+h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.6rem;
+}
+
+a {
+  color: var(--brand);
+}
+
+/* Letter-spaced all-caps label, used above headings and for dates. */
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.prose {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.prose p {
+  margin: 0 0 1.1rem;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.8rem 2.25rem;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #fff;
+  text-decoration: none;
+  background: var(--brand);
+  border: 0;
+  border-radius: 2px;
+}
+
+.button:hover {
+  background: var(--brand-dark);
+}
+
+.button-outline {
+  color: var(--brand);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+
+.button-outline:hover {
+  color: #fff;
+}
+
+.page-title {
+  padding-block: 2rem 1rem;
+  text-align: center;
+}
+
+.section {
+  padding-block: 4rem;
+  text-align: center;
+}
+
+.divider {
+  width: 4rem;
+  height: 1px;
+  margin: 0 auto 2rem;
+  background: var(--accent);
+  border: 0;
+}

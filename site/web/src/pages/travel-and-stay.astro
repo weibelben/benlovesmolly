@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/Base.astro';
+import { hotelBlocks, otherHotels } from '../data/wedding.js';
+---
+<Base title="Travel & Stay">
+  <header class="page-title container">
+    <h1>Travel &amp; Stay</h1>
+    <hr class="divider" />
+  </header>
+
+  <section class="section container">
+    <h2>Where to Stay</h2>
+    <div class="prose">
+      <p>[A short note about the event locations and which area of town is most convenient.]</p>
+    </div>
+
+    <h3 class="sub">Hotel Room Blocks</h3>
+    <ul class="hotels">
+      {hotelBlocks.map((hotel) => (
+        <li class="hotel">
+          <h4>{hotel.name}</h4>
+          <p class="muted">{hotel.address}</p>
+          <p>{hotel.details}</p>
+          <a class="button button-outline" href={hotel.url}>Book</a>
+        </li>
+      ))}
+    </ul>
+
+    <h3 class="sub">Other Hotel Options</h3>
+    <ul class="list">
+      {otherHotels.map((hotel) => (
+        <li>{hotel.name} <span class="muted">– {hotel.area}</span></li>
+      ))}
+    </ul>
+
+    <h3 class="sub">Airbnb</h3>
+    <div class="prose">
+      <p>[Suggested neighborhoods for vacation rentals.]</p>
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>Getting Here</h2>
+    <div class="prose">
+      <p>[Nearest airport and how far it is.]</p>
+      <p>[Ride-share, rental car, and public transit options.]</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .section + .section {
+    border-top: 1px solid var(--line);
+  }
+  .sub {
+    margin-top: 3rem;
+  }
+  .hotels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.5rem;
+    max-width: 52rem;
+    margin: 1.5rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hotel {
+    padding: 2rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+  }
+  .hotel h4 {
+    margin: 0 0 0.25rem;
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .hotel p {
+    margin: 0 0 1rem;
+  }
+  .list {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    line-height: 2;
+  }
+  .muted {
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import { registries } from '../data/wedding.js';
+---
+<Base title="Registry">
+  <section class="section container">
+    <h1>Registry</h1>
+    <hr class="divider" />
+    <div class="prose">
+      <p class="lead">As most of you are traveling to be with us on our special day, your presence is more than enough.</p>
+      <p>If you'd still like to give a gift, you can find our registries below.</p>
+    </div>
+    <ul class="links">
+      {registries.map((registry) => (
+        <li><a class="button" href={registry.url}>{registry.label}</a></li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .lead {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    line-height: 1.4;
+  }
+  .links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .links .button {
+    min-width: 18rem;
+  }
+</style>
