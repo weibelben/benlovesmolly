@@ -8,9 +8,9 @@ export const couple = {
 };
 
 export const wedding = {
-  // Short form used in the hero and sign-off, like 10.3.26.
-  dateShort: '[M.D.YY]',
-  location: '[City, ST]',
+  // Short form used in the hero and sign-off, as MM.DD.YYYY.
+  dateShort: '09.09.2028',
+  location: 'Cranberry Isles, ME',
 };
 
 // RSVP isn't built yet, so every RSVP button points at the placeholder page.
@@ -18,7 +18,7 @@ export const rsvpUrl = '/rsvp/';
 
 export const weekend = [
   {
-    day: '[Friday, Month Day]',
+    day: 'Friday, September 8th',
     title: 'Welcome Drinks',
     time: '[7:00 – 9:00 PM]',
     venue: '[Venue Name]',
@@ -27,7 +27,7 @@ export const weekend = [
     notes: ['[Any notes for guests, e.g. dinner recommended beforehand.]'],
   },
   {
-    day: '[Saturday, Month Day]',
+    day: 'Saturday, September 9th',
     title: 'Ceremony + Reception',
     time: '[4:30 PM]',
     venue: '[Venue Name]',
@@ -36,7 +36,7 @@ export const weekend = [
     notes: ['[Shuttle and parking details.]'],
   },
   {
-    day: '[Sunday, Month Day]',
+    day: 'Sunday, September 10th',
     title: 'Farewell Brunch',
     time: '[10:30 AM]',
     venue: '[Venue Name]',

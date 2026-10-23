@@ -13,6 +13,7 @@ Code supporting benlovesmolly.com
 | :------------ | :--------------------------------------------------- |
 | `make dev`    | Run the Astro dev server at `localhost:4321`         |
 | `make deploy` | Rebuild and (re)start the web and tunnel containers  |
+| `make deploy-web` | Rebuild and restart only the web container (tunnel stays up) |
 | `make logs`   | Tail container logs (`make logs s=cloudflared`)      |
 | `make down`   | Stop everything                                      |
 
