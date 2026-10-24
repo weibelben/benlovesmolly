@@ -1,0 +1,23 @@
+---
+// Full-width wavy line, like a Squarespace "wavy" section divider.
+// Five waves across the page; the stroke stays the same thickness at any width.
+---
+<svg class="squiggle" viewBox="0 0 10 2" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 1 Q1 0 2 1 T4 1 T6 1 T8 1 T10 1" vector-effect="non-scaling-stroke" />
+</svg>
+
+<style>
+  .squiggle {
+    display: block;
+    width: 100%;
+    height: 4vw;
+    min-height: 1.25rem;
+    overflow: visible;
+  }
+  path {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 6px;
+    stroke-linecap: round;
+  }
+</style>

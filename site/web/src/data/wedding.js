@@ -8,9 +8,9 @@ export const couple = {
 };
 
 export const wedding = {
-  // Short form used in the hero and sign-off, like 10.3.26.
-  dateShort: '[M.D.YY]',
-  location: '[City, ST]',
+  // Short form used in the hero and sign-off, as MM.DD.YYYY.
+  dateShort: '09.09.2028',
+  location: 'Cranberry Isles, ME',
 };
 
 // RSVP isn't built yet, so every RSVP button points at the placeholder page.
@@ -18,7 +18,7 @@ export const rsvpUrl = '/rsvp/';
 
 export const weekend = [
   {
-    day: '[Friday, Month Day]',
+    day: 'Friday, September 8th',
     title: 'Welcome Drinks',
     time: '[7:00 – 9:00 PM]',
     venue: '[Venue Name]',
@@ -27,7 +27,7 @@ export const weekend = [
     notes: ['[Any notes for guests, e.g. dinner recommended beforehand.]'],
   },
   {
-    day: '[Saturday, Month Day]',
+    day: 'Saturday, September 9th',
     title: 'Ceremony + Reception',
     time: '[4:30 PM]',
     venue: '[Venue Name]',
@@ -36,7 +36,7 @@ export const weekend = [
     notes: ['[Shuttle and parking details.]'],
   },
   {
-    day: '[Sunday, Month Day]',
+    day: 'Sunday, September 10th',
     title: 'Farewell Brunch',
     time: '[10:30 AM]',
     venue: '[Venue Name]',
@@ -96,5 +96,19 @@ export const registries = [
   { label: '[Registry Name]', url: '#' },
 ];
 
-// Drop photos in public/images/gallery/ and list them here.
-export const gallery = [];
+// Every photo in src/assets/gallery/ shows up in the gallery. Photos listed here
+// come first, in this order, with their description; any others follow after.
+// `ratio` and `position` crop a photo, e.g. to cut app UI out of a screenshot.
+export const gallery = [
+  { file: 'rainbow.jpg', alt: 'Ben and Molly hugging on a crowded lawn under a double rainbow.' },
+  { file: 'halloween.jpg', alt: 'Ben and Molly in Halloween costumes: a pink dress, and a green-faced witch with a broom.' },
+  { file: 'driveway_rings.jpg', alt: 'A goofy driveway selfie of Ben and Molly showing off their rings.' },
+  { file: 'wisconsin_table.jpg', alt: 'Ben and Molly at a Wisconsin W mosaic table in front of a planted aquarium.' },
+  { file: 'sleeping_bags.jpg', alt: 'Ben and Molly grinning from inside their sleeping bags.' },
+  {
+    file: 'ring_cam_proposal.jpg',
+    alt: 'Doorbell camera view of the proposal inside a house under construction.',
+    ratio: '1 / 1',
+    position: '50% 14%',
+  },
+];
