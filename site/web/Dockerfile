@@ -8,5 +8,6 @@ RUN npm run build
 # Runs as a non-root user; nginx.conf still listens on 80, which Docker
 # allows unprivileged processes to bind inside a container.
 FROM nginxinc/nginx-unprivileged:alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Rendered into conf.d at start-up, filling in the password hash from the env.
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
