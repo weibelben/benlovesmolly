@@ -6,14 +6,14 @@ import (
 	"testing"
 )
 
-const testCSV = `# first, last, party, nicknames, email, notes
-John, Doe, doe, , john@example.com, Groom's college friend
-Jane, Doe, doe, , jane@example.com, "Notes, with a comma"
-William, Smith, , Bill; Will, bill@example.com,
-José, O'Brien-Smith, , , ,
-Jon, Lee, , , ,
-John, Smith, smith, , ,
-Kid, Smith, smith, , ,
+const testCSV = `# first, last, party, nicknames, notes
+John, Doe, doe, , Groom's college friend
+Jane, Doe, doe, , "Notes, with a comma"
+William, Smith, , Bill; Will,
+José, O'Brien-Smith, , ,
+Jon, Lee, , ,
+John, Smith, smith, ,
+Kid, Smith, smith, ,
 `
 
 func testGuests(t *testing.T) *GuestList {
