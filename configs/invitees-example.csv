@@ -1,4 +1,7 @@
 # Example invitees CSV file
 # The real file is submoduled from a private repository
-John, Doe, johndoe@example.com, More info about John Doe
-Jane, Doe, janedoe@example.com, More info about Jane Doe
+# first, last, party, email, notes
+# Guests who share a party RSVP together. Leave party blank for a solo guest.
+John, Doe, doe, johndoe@example.com, More info about John Doe
+Jane, Doe, doe, janedoe@example.com, More info about Jane Doe
+Sam, Smith, , samsmith@example.com, Invited on their own

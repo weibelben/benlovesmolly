@@ -13,7 +13,7 @@ export const wedding = {
   location: 'Cranberry Isles, ME',
 };
 
-// RSVP isn't built yet, so every RSVP button points at the placeholder page.
+// Every RSVP button on the site points here.
 export const rsvpUrl = '/rsvp/';
 
 export const weekend = [

@@ -2,7 +2,11 @@ name: benlovesmolly
 
 services:
  web:
-  build: ./web
+  build:
+   context: ./web
+   # The guest list lives outside the web context, in the private submodule.
+   additional_contexts:
+    invitees: ../configs/benlovesmolly-private
   environment:
    SITE_PASSWORD_HASH: ${SITE_PASSWORD_HASH}
   read_only: true

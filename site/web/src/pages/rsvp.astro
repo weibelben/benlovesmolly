@@ -1,10 +1,345 @@
 ---
 import Base from '../layouts/Base.astro';
+import { parties } from '../data/invitees.js';
+
+// Escaped so a name can't close the <script> tag it's embedded in.
+const partiesJson = JSON.stringify(parties).replace(/</g, '\\u003c');
 ---
 <Base title="RSVP">
   <section class="section container">
     <h1>RSVP</h1>
     <hr class="divider" />
-    <p>Coming soon.</p>
+
+    <div class="find" data-step="find">
+      <label for="guest-name">Enter your first and last name</label>
+      <input
+        id="guest-name"
+        type="text"
+        autocomplete="name"
+        autocapitalize="words"
+        spellcheck="false"
+        aria-describedby="guest-status"
+      />
+      <p id="guest-status" class="status" aria-live="polite"></p>
+      <ul class="matches"></ul>
+    </div>
+
+    <form class="details" data-step="details" hidden>
+      <p class="greeting">
+        Hi, <strong class="guest"></strong>!
+        <button class="change" type="button">Not you?</button>
+      </p>
+
+      <div class="guests"></div>
+
+      <label class="field">
+        Email
+        <input type="email" name="email" autocomplete="email" required />
+      </label>
+
+      <button class="button" type="submit">Send RSVP</button>
+    </form>
+
+    <p class="thanks" data-step="thanks" role="status" hidden>Thank you! We've got your RSVP.</p>
   </section>
 </Base>
+
+<script id="parties" type="application/json" set:html={partiesJson} />
+
+<script>
+  const parties: string[][] = JSON.parse(document.getElementById('parties')!.textContent!);
+
+  const find = document.querySelector<HTMLElement>('[data-step="find"]')!;
+  const input = document.querySelector<HTMLInputElement>('#guest-name')!;
+  const status = document.querySelector<HTMLElement>('#guest-status')!;
+  const matches = document.querySelector<HTMLUListElement>('.matches')!;
+  const form = document.querySelector<HTMLFormElement>('[data-step="details"]')!;
+  const greeting = form.querySelector<HTMLElement>('.guest')!;
+  const guests = form.querySelector<HTMLElement>('.guests')!;
+  const thanks = document.querySelector<HTMLElement>('[data-step="thanks"]')!;
+
+  // Short queries would let anyone page through the whole guest list.
+  const MIN_QUERY = 3;
+  const MAX_MATCHES = 5;
+
+  // Lowercase, drop accents and punctuation, so "jose" finds "José" and
+  // "o'brien" finds "O'Brien".
+  const words = (text: string) =>
+    text
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .split(/\s+/)
+      .filter(Boolean);
+
+  // True when a and b differ by at most one inserted, deleted, changed or
+  // swapped letter.
+  function nearlyEqual(a: string, b: string) {
+    if (Math.abs(a.length - b.length) > 1) return false;
+    let i = 0;
+    let j = 0;
+    let edits = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) {
+        i++;
+        j++;
+        continue;
+      }
+      if (++edits > 1) return false;
+      if (a.length === b.length && a[i] === b[j + 1] && a[i + 1] === b[j]) {
+        i += 2;
+        j += 2;
+      } else if (a.length > b.length) i++;
+      else if (b.length > a.length) j++;
+      else {
+        i++;
+        j++;
+      }
+    }
+    return edits + (a.length - i) + (b.length - j) <= 1;
+  }
+
+  // Scores how well a typed word matches a word of a name: exact beats a
+  // prefix beats a one-letter typo. Typos only count on longer words, where
+  // they can't match half the list.
+  function wordScore(typed: string, name: string) {
+    if (typed === name) return 3;
+    if (name.startsWith(typed)) return 2;
+    if (typed.length >= 4 && nearlyEqual(typed, name)) return 1;
+    return 0;
+  }
+
+  // How well the typed words match one guest's name, or 0 if any word misses.
+  function nameScore(typed: string[], name: string) {
+    const nameWords = words(name);
+    let score = 0;
+    for (const word of typed) {
+      const best = Math.max(...nameWords.map((nameWord) => wordScore(word, nameWord)));
+      if (!best) return 0;
+      score += best;
+    }
+    return score;
+  }
+
+  // Finds the parties with a guest matching the query, each with the matching
+  // guest listed first. Async so it can become a request to the RSVP server.
+  async function findParties(query: string) {
+    const typed = words(query);
+    return parties
+      .map((party) => {
+        const scores = party.map((name) => nameScore(typed, name));
+        const best = Math.max(...scores);
+        const first = scores.indexOf(best);
+        return { names: [party[first], ...party.filter((_, i) => i !== first)], score: best };
+      })
+      .filter((match) => match.score > 0)
+      .sort((a, b) => b.score - a.score || a.names[0].localeCompare(b.names[0]))
+      .slice(0, MAX_MATCHES)
+      .map((match) => match.names);
+  }
+
+  const listNames = (names: string[]) =>
+    names.length < 3 ? names.join(' and ') : `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
+
+  let latestQuery = '';
+
+  async function showMatches() {
+    const query = input.value.trim();
+    latestQuery = query;
+    if (query.replace(/\s/g, '').length < MIN_QUERY) {
+      matches.replaceChildren();
+      status.textContent = '';
+      return;
+    }
+    const found = await findParties(query);
+    // A slower answer for an earlier query mustn't replace a newer one.
+    if (query !== latestQuery) return;
+    matches.replaceChildren();
+    status.textContent = found.length
+      ? 'Select your name below.'
+      : "We couldn't find that name. Try the name on your invitation, or reach out to us.";
+    for (const names of found) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'match';
+      button.textContent = listNames(names);
+      button.addEventListener('click', () => choose(names));
+      const item = document.createElement('li');
+      item.append(button);
+      matches.append(item);
+    }
+  }
+
+  // One yes/no question per guest in the party.
+  function attendanceQuestion(name: string, i: number) {
+    const fieldset = document.createElement('fieldset');
+    const legend = document.createElement('legend');
+    legend.textContent = name;
+    fieldset.append(legend);
+    for (const [value, text] of [
+      ['yes', 'Joyfully accepts'],
+      ['no', 'Regretfully declines'],
+    ]) {
+      const label = document.createElement('label');
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = `attending-${i}`;
+      radio.value = value;
+      radio.required = true;
+      label.append(radio, ` ${text}`);
+      fieldset.append(label);
+    }
+    return fieldset;
+  }
+
+  let party: string[] = [];
+
+  function choose(names: string[]) {
+    party = names;
+    greeting.textContent = names[0].split(' ')[0];
+    guests.replaceChildren(...names.map(attendanceQuestion));
+    find.hidden = true;
+    form.hidden = false;
+    form.querySelector('input')!.focus();
+  }
+
+  input.addEventListener('input', showMatches);
+
+  form.querySelector('.change')!.addEventListener('click', () => {
+    form.reset();
+    form.hidden = true;
+    find.hidden = false;
+    input.select();
+  });
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const rsvp = {
+      guests: party.map((name, i) => ({ name, attending: data.get(`attending-${i}`) === 'yes' })),
+      email: data.get('email'),
+    };
+    // TODO: send to the RSVP server once it exists.
+    console.log('RSVP submitted', rsvp);
+    form.hidden = true;
+    thanks.hidden = false;
+  });
+</script>
+
+<style>
+  .find,
+  .details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: min(28rem, 100%);
+    margin: 0 auto;
+    text-align: left;
+  }
+  .find > label,
+  .field {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  input[type='text'],
+  input[type='email'] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+  }
+  input:focus {
+    outline: 2px solid var(--brand);
+    outline-offset: 1px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .status {
+    margin: 0;
+    color: var(--muted);
+  }
+  .matches {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .match {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    text-align: left;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .match:hover,
+  .match:focus-visible {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+  .greeting {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.6rem;
+  }
+  .change {
+    padding: 0;
+    font: inherit;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--brand);
+    text-decoration: underline;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .guests {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .guests fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .guests legend {
+    margin-bottom: 0.25rem;
+    padding: 0;
+    font-family: var(--serif);
+    font-size: 1.3rem;
+  }
+  .guests label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .details .button {
+    align-self: center;
+    margin-top: 0.5rem;
+    cursor: pointer;
+  }
+  .thanks {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+  }
+</style>
