@@ -5,6 +5,310 @@ import Base from '../layouts/Base.astro';
   <section class="section container">
     <h1>RSVP</h1>
     <hr class="divider" />
-    <p>Coming soon.</p>
+
+    <form class="find" data-step="find">
+      <label for="guest-name">Enter your full name or last name<span class="required" aria-hidden="true">*</span></label>
+      <input
+        id="guest-name"
+        name="name"
+        type="text"
+        autocomplete="name"
+        autocapitalize="words"
+        spellcheck="false"
+        required
+        aria-describedby="find-status"
+      />
+      <button class="button" type="submit">Find my invitation</button>
+      <p id="find-status" class="status" role="status"></p>
+      <ul class="matches"></ul>
+    </form>
+
+    <form class="details" data-step="details" hidden>
+      <div class="greeting">
+        <p>Hi, <strong class="guest"></strong>!</p>
+        <button class="change" type="button">Not you?</button>
+      </div>
+
+      <div class="guests"></div>
+
+      <label class="field">
+        <span>Email<span class="required" aria-hidden="true">*</span></span>
+        <input type="email" name="email" autocomplete="email" required />
+      </label>
+
+      <button class="button" type="submit">Send RSVP</button>
+      <p class="status submit-status" role="status"></p>
+    </form>
+
+    <p class="thanks" data-step="thanks" role="status" hidden>Thank you! We've got your RSVP.</p>
   </section>
 </Base>
+
+<script>
+  type Party = { id: string; guests: string[]; firstNames: string[] };
+
+  const find = document.querySelector<HTMLFormElement>('[data-step="find"]')!;
+  const input = find.querySelector<HTMLInputElement>('#guest-name')!;
+  const findButton = find.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+  const findStatus = find.querySelector<HTMLElement>('.status')!;
+  const matches = find.querySelector<HTMLUListElement>('.matches')!;
+  const form = document.querySelector<HTMLFormElement>('[data-step="details"]')!;
+  const greeting = form.querySelector<HTMLElement>('.guest')!;
+  const guests = form.querySelector<HTMLElement>('.guests')!;
+  const sendButton = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+  const submitStatus = form.querySelector<HTMLElement>('.submit-status')!;
+  const thanks = document.querySelector<HTMLElement>('[data-step="thanks"]')!;
+
+  // Posts JSON to the RSVP API. Errors come back with a message to show the
+  // guest; anything else unexpected gets a generic one.
+  async function post(path: string, body: unknown) {
+    let res: Response;
+    try {
+      res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } catch {
+      throw new Error("We couldn't reach the server. Check your connection and try again.");
+    }
+    // The site password cookie has expired; reloading shows the password page.
+    if (res.status === 401) location.reload();
+    if (res.ok) return res.status === 204 ? null : res.json();
+    const message = await res
+      .json()
+      .then((data) => data.error)
+      .catch(() => null);
+    throw new Error(message ?? 'Something went wrong. Please try again later.');
+  }
+
+  const listNames = (names: string[]) =>
+    names.length < 3 ? names.join(' and ') : `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
+
+  find.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    matches.replaceChildren();
+    findStatus.textContent = '';
+    findButton.disabled = true;
+    try {
+      const { parties }: { parties: Party[] } = await post('/api/lookup', { name: input.value });
+      if (!parties.length) {
+        findStatus.textContent =
+          "We couldn't find that name. Try the name on your invitation, or reach out to us.";
+        return;
+      }
+      findStatus.textContent = parties.length > 1 ? 'Which of these is you?' : 'Is this you?';
+      for (const party of parties) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'match';
+        button.textContent = listNames(party.guests);
+        button.addEventListener('click', () => choose(party));
+        const item = document.createElement('li');
+        item.append(button);
+        matches.append(item);
+      }
+    } catch (err) {
+      findStatus.textContent = (err as Error).message;
+    } finally {
+      findButton.disabled = false;
+    }
+  });
+
+  // One yes/no question per guest in the party.
+  function attendanceQuestion(name: string, i: number) {
+    const fieldset = document.createElement('fieldset');
+    const legend = document.createElement('legend');
+    const required = document.createElement('span');
+    required.className = 'required';
+    required.ariaHidden = 'true';
+    required.textContent = '*';
+    legend.append(name, required);
+    fieldset.append(legend);
+    for (const [value, text] of [
+      ['yes', 'Joyfully accepts'],
+      ['no', 'Regretfully declines'],
+    ]) {
+      const label = document.createElement('label');
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = `attending-${i}`;
+      radio.value = value;
+      radio.required = true;
+      label.append(radio, ` ${text}`);
+      fieldset.append(label);
+    }
+    return fieldset;
+  }
+
+  let party: Party;
+
+  function choose(chosen: Party) {
+    party = chosen;
+    // Anyone in the party might be the one answering, so greet them all.
+    greeting.textContent = listNames(chosen.firstNames);
+    guests.replaceChildren(...chosen.guests.map(attendanceQuestion));
+    find.hidden = true;
+    form.hidden = false;
+    form.querySelector('input')!.focus();
+  }
+
+  form.querySelector('.change')!.addEventListener('click', () => {
+    form.reset();
+    submitStatus.textContent = '';
+    matches.replaceChildren();
+    findStatus.textContent = '';
+    form.hidden = true;
+    find.hidden = false;
+    input.select();
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    submitStatus.textContent = '';
+    sendButton.disabled = true;
+    try {
+      await post('/api/rsvp', {
+        party: party.id,
+        email: data.get('email'),
+        guests: party.guests.map((name, i) => ({ name, attending: data.get(`attending-${i}`) === 'yes' })),
+      });
+      form.hidden = true;
+      thanks.hidden = false;
+    } catch (err) {
+      submitStatus.textContent = (err as Error).message;
+    } finally {
+      sendButton.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .find,
+  .details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: min(28rem, 100%);
+    margin: 0 auto;
+    text-align: left;
+  }
+  .find > label,
+  .field {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  input[type='text'],
+  input[type='email'] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+  }
+  input:focus {
+    outline: 2px solid var(--brand);
+    outline-offset: 1px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .status {
+    margin: 0;
+    color: var(--muted);
+  }
+  .status:empty {
+    display: none;
+  }
+  .matches {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .match {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    text-align: left;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .match:hover,
+  .match:focus-visible {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+  .greeting p {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.6rem;
+  }
+  .required {
+    margin-left: 0.15em;
+    color: #b3261e;
+  }
+  .change {
+    margin-top: 0.15rem;
+    padding: 0;
+    font: inherit;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--brand);
+    text-decoration: underline;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .guests {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .guests fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .guests legend {
+    margin-bottom: 0.25rem;
+    padding: 0;
+    font-family: var(--serif);
+    font-size: 1.3rem;
+  }
+  .guests label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .find .button,
+  .details .button {
+    align-self: center;
+    cursor: pointer;
+  }
+  .button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+  .thanks {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+  }
+</style>
