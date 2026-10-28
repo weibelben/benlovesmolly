@@ -7,7 +7,7 @@ import Base from '../layouts/Base.astro';
     <hr class="divider" />
 
     <form class="find" data-step="find">
-      <label for="guest-name">Enter your full name or last name</label>
+      <label for="guest-name">Enter your full name or last name<span class="required" aria-hidden="true">*</span></label>
       <input
         id="guest-name"
         name="name"
@@ -24,15 +24,15 @@ import Base from '../layouts/Base.astro';
     </form>
 
     <form class="details" data-step="details" hidden>
-      <p class="greeting">
-        Hi, <strong class="guest"></strong>!
+      <div class="greeting">
+        <p>Hi, <strong class="guest"></strong>!</p>
         <button class="change" type="button">Not you?</button>
-      </p>
+      </div>
 
       <div class="guests"></div>
 
       <label class="field">
-        Email
+        <span>Email<span class="required" aria-hidden="true">*</span></span>
         <input type="email" name="email" autocomplete="email" required />
       </label>
 
@@ -45,7 +45,7 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <script>
-  type Party = { id: string; guests: string[] };
+  type Party = { id: string; guests: string[]; firstNames: string[] };
 
   const find = document.querySelector<HTMLFormElement>('[data-step="find"]')!;
   const input = find.querySelector<HTMLInputElement>('#guest-name')!;
@@ -119,7 +119,11 @@ import Base from '../layouts/Base.astro';
   function attendanceQuestion(name: string, i: number) {
     const fieldset = document.createElement('fieldset');
     const legend = document.createElement('legend');
-    legend.textContent = name;
+    const required = document.createElement('span');
+    required.className = 'required';
+    required.ariaHidden = 'true';
+    required.textContent = '*';
+    legend.append(name, required);
     fieldset.append(legend);
     for (const [value, text] of [
       ['yes', 'Joyfully accepts'],
@@ -141,7 +145,8 @@ import Base from '../layouts/Base.astro';
 
   function choose(chosen: Party) {
     party = chosen;
-    greeting.textContent = chosen.guests[0].split(' ')[0];
+    // Anyone in the party might be the one answering, so greet them all.
+    greeting.textContent = listNames(chosen.firstNames);
     guests.replaceChildren(...chosen.guests.map(attendanceQuestion));
     find.hidden = true;
     form.hidden = false;
@@ -248,16 +253,21 @@ import Base from '../layouts/Base.astro';
     border-color: var(--brand);
     color: var(--brand);
   }
-  .greeting {
+  .greeting p {
     margin: 0;
     font-family: var(--serif);
     font-size: 1.6rem;
   }
+  .required {
+    margin-left: 0.15em;
+    color: #b3261e;
+  }
   .change {
+    margin-top: 0.15rem;
     padding: 0;
     font: inherit;
     font-family: var(--sans);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--brand);
     text-decoration: underline;
     background: none;

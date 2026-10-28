@@ -25,7 +25,8 @@ type Party struct {
 }
 
 type Guest struct {
-	Name string
+	Name  string
+	First string
 	// Each way the guest might search for themselves, as normalized words:
 	// their full name, with each nickname, and their last name alone.
 	spellings [][]string
@@ -85,7 +86,7 @@ func parseGuestList(r io.Reader) (*GuestList, error) {
 		}
 
 		name := first + " " + last
-		guest := Guest{Name: name, spellings: [][]string{words(name), words(last)}}
+		guest := Guest{Name: name, First: first, spellings: [][]string{words(name), words(last)}}
 		for _, nick := range strings.Split(col(3), ";") {
 			if nick = strings.TrimSpace(nick); nick != "" {
 				guest.spellings = append(guest.spellings, words(nick+" "+last))

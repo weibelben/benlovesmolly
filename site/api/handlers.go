@@ -25,6 +25,8 @@ type partyJSON struct {
 	ID string `json:"id"`
 	// The guest who matched comes first, then the rest of their party.
 	Guests []string `json:"guests"`
+	// The same guests' first names, for greeting them.
+	FirstNames []string `json:"firstNames"`
 }
 
 // lookup finds the parties a guest belongs to by their full or last name.
@@ -38,13 +40,15 @@ func (a *App) lookup(w http.ResponseWriter, r *http.Request) {
 
 	res := lookupResult{Parties: []partyJSON{}}
 	for _, m := range a.guests.Find(req.Name) {
-		names := []string{m.Party.Guests[m.Guest].Name}
+		matched := m.Party.Guests[m.Guest]
+		party := partyJSON{ID: m.Party.ID, Guests: []string{matched.Name}, FirstNames: []string{matched.First}}
 		for i, g := range m.Party.Guests {
 			if i != m.Guest {
-				names = append(names, g.Name)
+				party.Guests = append(party.Guests, g.Name)
+				party.FirstNames = append(party.FirstNames, g.First)
 			}
 		}
-		res.Parties = append(res.Parties, partyJSON{ID: m.Party.ID, Guests: names})
+		res.Parties = append(res.Parties, party)
 	}
 	writeJSON(w, res)
 }
