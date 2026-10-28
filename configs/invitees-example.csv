@@ -1,7 +1,9 @@
 # Example invitees CSV file
 # The real file is submoduled from a private repository
-# first, last, party, email, notes
-# Guests who share a party RSVP together. Leave party blank for a solo guest.
-John, Doe, doe, johndoe@example.com, More info about John Doe
-Jane, Doe, doe, janedoe@example.com, More info about Jane Doe
-Sam, Smith, , samsmith@example.com, Invited on their own
+# first, last, party, nicknames, email, notes
+# Guests who share a party RSVP together; leave party blank for a solo guest.
+# Nicknames are separated by semicolons and stand in for the first name.
+# Wrap a field in double quotes if it contains a comma.
+John, Doe, doe, Johnny, johndoe@example.com, More info about John Doe
+Jane, Doe, doe, , janedoe@example.com, More info about Jane Doe
+William, Smith, , Bill; Will, billsmith@example.com, "Invited on his own, no plus-one"

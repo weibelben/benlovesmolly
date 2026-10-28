@@ -2,13 +2,11 @@ name: benlovesmolly
 
 services:
  web:
-  build:
-   context: ./web
-   # The guest list lives outside the web context, in the private submodule.
-   additional_contexts:
-    invitees: ../configs/benlovesmolly-private
+  build: ./web
   environment:
    SITE_PASSWORD_HASH: ${SITE_PASSWORD_HASH}
+  depends_on:
+   - api
   read_only: true
   tmpfs:
    - /tmp
@@ -19,6 +17,68 @@ services:
   security_opt:
    - no-new-privileges:true
   restart: unless-stopped
+
+ api:
+  build: ./api
+  environment:
+   DATABASE_URL: postgres://benlovesmolly_site:${SITE_DB_PASSWORD}@db:5432/benlovesmolly?sslmode=disable
+   INVITEES_CSV: /invitees/invitees.csv
+  volumes:
+   # The guest list, from the private submodule. Read at startup, so run
+   # `make restart-api` after changing it. The folder is mounted rather than
+   # the file because git replaces the file on update, and a file mount would
+   # keep showing the old one.
+   - ../configs/benlovesmolly-private:/invitees:ro
+  depends_on:
+   db-init:
+    condition: service_completed_successfully
+  read_only: true
+  cap_drop:
+   - ALL
+  security_opt:
+   - no-new-privileges:true
+  restart: unless-stopped
+
+ db:
+  image: postgres:18-alpine
+  environment:
+   POSTGRES_USER: benw
+   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+   POSTGRES_DB: benlovesmolly
+  volumes:
+   - pgdata:/var/lib/postgresql
+  ports:
+   # 5432 is taken by the weibelpainting database on the same host.
+   - 127.0.0.1:5433:5432
+  healthcheck:
+   test: ["CMD-SHELL", "pg_isready -U benw -d benlovesmolly"]
+   interval: 5s
+   timeout: 3s
+   retries: 10
+  restart: unless-stopped
+
+ # Creates/updates the API's database role (see db/site-user.sql), then exits.
+ db-init:
+  image: postgres:18-alpine
+  command: ["psql", "-f", "/site-user.sql"]
+  environment:
+   PGHOST: db
+   PGUSER: benw
+   PGDATABASE: benlovesmolly
+   PGPASSWORD: ${POSTGRES_PASSWORD}
+   SITE_DB_PASSWORD: ${SITE_DB_PASSWORD}
+  volumes:
+   - ./db/site-user.sql:/site-user.sql:ro
+  depends_on:
+   db:
+    condition: service_healthy
+  user: postgres
+  read_only: true
+  cap_drop:
+   - ALL
+  security_opt:
+   - no-new-privileges:true
+  restart: "no"
 
  cloudflared:
   image: cloudflare/cloudflared:2026.10.4@sha256:c6c7ae1d5dfdcb094ad344ed68ccffc26635c9c6be80965664c33baf064b0515
@@ -33,3 +93,6 @@ services:
   depends_on:
    - web
   restart: unless-stopped
+
+volumes:
+ pgdata:

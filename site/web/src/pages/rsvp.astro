@@ -1,28 +1,27 @@
 ---
 import Base from '../layouts/Base.astro';
-import { parties } from '../data/invitees.js';
-
-// Escaped so a name can't close the <script> tag it's embedded in.
-const partiesJson = JSON.stringify(parties).replace(/</g, '\\u003c');
 ---
 <Base title="RSVP">
   <section class="section container">
     <h1>RSVP</h1>
     <hr class="divider" />
 
-    <div class="find" data-step="find">
-      <label for="guest-name">Enter your first and last name</label>
+    <form class="find" data-step="find">
+      <label for="guest-name">Enter your full name or last name</label>
       <input
         id="guest-name"
+        name="name"
         type="text"
         autocomplete="name"
         autocapitalize="words"
         spellcheck="false"
-        aria-describedby="guest-status"
+        required
+        aria-describedby="find-status"
       />
-      <p id="guest-status" class="status" aria-live="polite"></p>
+      <button class="button" type="submit">Find my invitation</button>
+      <p id="find-status" class="status" role="status"></p>
       <ul class="matches"></ul>
-    </div>
+    </form>
 
     <form class="details" data-step="details" hidden>
       <p class="greeting">
@@ -38,138 +37,83 @@ const partiesJson = JSON.stringify(parties).replace(/</g, '\\u003c');
       </label>
 
       <button class="button" type="submit">Send RSVP</button>
+      <p class="status submit-status" role="status"></p>
     </form>
 
     <p class="thanks" data-step="thanks" role="status" hidden>Thank you! We've got your RSVP.</p>
   </section>
 </Base>
 
-<script id="parties" type="application/json" set:html={partiesJson} />
-
 <script>
-  const parties: string[][] = JSON.parse(document.getElementById('parties')!.textContent!);
+  type Party = { id: string; guests: string[] };
 
-  const find = document.querySelector<HTMLElement>('[data-step="find"]')!;
-  const input = document.querySelector<HTMLInputElement>('#guest-name')!;
-  const status = document.querySelector<HTMLElement>('#guest-status')!;
-  const matches = document.querySelector<HTMLUListElement>('.matches')!;
+  const find = document.querySelector<HTMLFormElement>('[data-step="find"]')!;
+  const input = find.querySelector<HTMLInputElement>('#guest-name')!;
+  const findButton = find.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+  const findStatus = find.querySelector<HTMLElement>('.status')!;
+  const matches = find.querySelector<HTMLUListElement>('.matches')!;
   const form = document.querySelector<HTMLFormElement>('[data-step="details"]')!;
   const greeting = form.querySelector<HTMLElement>('.guest')!;
   const guests = form.querySelector<HTMLElement>('.guests')!;
+  const sendButton = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+  const submitStatus = form.querySelector<HTMLElement>('.submit-status')!;
   const thanks = document.querySelector<HTMLElement>('[data-step="thanks"]')!;
 
-  // Short queries would let anyone page through the whole guest list.
-  const MIN_QUERY = 3;
-  const MAX_MATCHES = 5;
-
-  // Lowercase, drop accents and punctuation, so "jose" finds "José" and
-  // "o'brien" finds "O'Brien".
-  const words = (text: string) =>
-    text
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '')
-      .split(/\s+/)
-      .filter(Boolean);
-
-  // True when a and b differ by at most one inserted, deleted, changed or
-  // swapped letter.
-  function nearlyEqual(a: string, b: string) {
-    if (Math.abs(a.length - b.length) > 1) return false;
-    let i = 0;
-    let j = 0;
-    let edits = 0;
-    while (i < a.length && j < b.length) {
-      if (a[i] === b[j]) {
-        i++;
-        j++;
-        continue;
-      }
-      if (++edits > 1) return false;
-      if (a.length === b.length && a[i] === b[j + 1] && a[i + 1] === b[j]) {
-        i += 2;
-        j += 2;
-      } else if (a.length > b.length) i++;
-      else if (b.length > a.length) j++;
-      else {
-        i++;
-        j++;
-      }
+  // Posts JSON to the RSVP API. Errors come back with a message to show the
+  // guest; anything else unexpected gets a generic one.
+  async function post(path: string, body: unknown) {
+    let res: Response;
+    try {
+      res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } catch {
+      throw new Error("We couldn't reach the server. Check your connection and try again.");
     }
-    return edits + (a.length - i) + (b.length - j) <= 1;
-  }
-
-  // Scores how well a typed word matches a word of a name: exact beats a
-  // prefix beats a one-letter typo. Typos only count on longer words, where
-  // they can't match half the list.
-  function wordScore(typed: string, name: string) {
-    if (typed === name) return 3;
-    if (name.startsWith(typed)) return 2;
-    if (typed.length >= 4 && nearlyEqual(typed, name)) return 1;
-    return 0;
-  }
-
-  // How well the typed words match one guest's name, or 0 if any word misses.
-  function nameScore(typed: string[], name: string) {
-    const nameWords = words(name);
-    let score = 0;
-    for (const word of typed) {
-      const best = Math.max(...nameWords.map((nameWord) => wordScore(word, nameWord)));
-      if (!best) return 0;
-      score += best;
-    }
-    return score;
-  }
-
-  // Finds the parties with a guest matching the query, each with the matching
-  // guest listed first. Async so it can become a request to the RSVP server.
-  async function findParties(query: string) {
-    const typed = words(query);
-    return parties
-      .map((party) => {
-        const scores = party.map((name) => nameScore(typed, name));
-        const best = Math.max(...scores);
-        const first = scores.indexOf(best);
-        return { names: [party[first], ...party.filter((_, i) => i !== first)], score: best };
-      })
-      .filter((match) => match.score > 0)
-      .sort((a, b) => b.score - a.score || a.names[0].localeCompare(b.names[0]))
-      .slice(0, MAX_MATCHES)
-      .map((match) => match.names);
+    // The site password cookie has expired; reloading shows the password page.
+    if (res.status === 401) location.reload();
+    if (res.ok) return res.status === 204 ? null : res.json();
+    const message = await res
+      .json()
+      .then((data) => data.error)
+      .catch(() => null);
+    throw new Error(message ?? 'Something went wrong. Please try again later.');
   }
 
   const listNames = (names: string[]) =>
     names.length < 3 ? names.join(' and ') : `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
 
-  let latestQuery = '';
-
-  async function showMatches() {
-    const query = input.value.trim();
-    latestQuery = query;
-    if (query.replace(/\s/g, '').length < MIN_QUERY) {
-      matches.replaceChildren();
-      status.textContent = '';
-      return;
-    }
-    const found = await findParties(query);
-    // A slower answer for an earlier query mustn't replace a newer one.
-    if (query !== latestQuery) return;
+  find.addEventListener('submit', async (event) => {
+    event.preventDefault();
     matches.replaceChildren();
-    status.textContent = found.length
-      ? 'Select your name below.'
-      : "We couldn't find that name. Try the name on your invitation, or reach out to us.";
-    for (const names of found) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'match';
-      button.textContent = listNames(names);
-      button.addEventListener('click', () => choose(names));
-      const item = document.createElement('li');
-      item.append(button);
-      matches.append(item);
+    findStatus.textContent = '';
+    findButton.disabled = true;
+    try {
+      const { parties }: { parties: Party[] } = await post('/api/lookup', { name: input.value });
+      if (!parties.length) {
+        findStatus.textContent =
+          "We couldn't find that name. Try the name on your invitation, or reach out to us.";
+        return;
+      }
+      findStatus.textContent = parties.length > 1 ? 'Which of these is you?' : 'Is this you?';
+      for (const party of parties) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'match';
+        button.textContent = listNames(party.guests);
+        button.addEventListener('click', () => choose(party));
+        const item = document.createElement('li');
+        item.append(button);
+        matches.append(item);
+      }
+    } catch (err) {
+      findStatus.textContent = (err as Error).message;
+    } finally {
+      findButton.disabled = false;
     }
-  }
+  });
 
   // One yes/no question per guest in the party.
   function attendanceQuestion(name: string, i: number) {
@@ -193,37 +137,45 @@ const partiesJson = JSON.stringify(parties).replace(/</g, '\\u003c');
     return fieldset;
   }
 
-  let party: string[] = [];
+  let party: Party;
 
-  function choose(names: string[]) {
-    party = names;
-    greeting.textContent = names[0].split(' ')[0];
-    guests.replaceChildren(...names.map(attendanceQuestion));
+  function choose(chosen: Party) {
+    party = chosen;
+    greeting.textContent = chosen.guests[0].split(' ')[0];
+    guests.replaceChildren(...chosen.guests.map(attendanceQuestion));
     find.hidden = true;
     form.hidden = false;
     form.querySelector('input')!.focus();
   }
 
-  input.addEventListener('input', showMatches);
-
   form.querySelector('.change')!.addEventListener('click', () => {
     form.reset();
+    submitStatus.textContent = '';
+    matches.replaceChildren();
+    findStatus.textContent = '';
     form.hidden = true;
     find.hidden = false;
     input.select();
   });
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const data = new FormData(form);
-    const rsvp = {
-      guests: party.map((name, i) => ({ name, attending: data.get(`attending-${i}`) === 'yes' })),
-      email: data.get('email'),
-    };
-    // TODO: send to the RSVP server once it exists.
-    console.log('RSVP submitted', rsvp);
-    form.hidden = true;
-    thanks.hidden = false;
+    submitStatus.textContent = '';
+    sendButton.disabled = true;
+    try {
+      await post('/api/rsvp', {
+        party: party.id,
+        email: data.get('email'),
+        guests: party.guests.map((name, i) => ({ name, attending: data.get(`attending-${i}`) === 'yes' })),
+      });
+      form.hidden = true;
+      thanks.hidden = false;
+    } catch (err) {
+      submitStatus.textContent = (err as Error).message;
+    } finally {
+      sendButton.disabled = false;
+    }
   });
 </script>
 
@@ -268,6 +220,9 @@ const partiesJson = JSON.stringify(parties).replace(/</g, '\\u003c');
   .status {
     margin: 0;
     color: var(--muted);
+  }
+  .status:empty {
+    display: none;
   }
   .matches {
     display: flex;
@@ -333,10 +288,14 @@ const partiesJson = JSON.stringify(parties).replace(/</g, '\\u003c');
     align-items: baseline;
     gap: 0.6rem;
   }
+  .find .button,
   .details .button {
     align-self: center;
-    margin-top: 0.5rem;
     cursor: pointer;
+  }
+  .button:disabled {
+    opacity: 0.6;
+    cursor: wait;
   }
   .thanks {
     font-family: var(--serif);

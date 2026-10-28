@@ -3,9 +3,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# Read by src/data/invitees.js; only guest names end up in the built site.
-COPY --from=invitees invitees.csv /invitees.csv
-ENV INVITEES_CSV=/invitees.csv
 RUN npm run build
 
 # Runs as a non-root user; nginx.conf still listens on 80, which Docker
