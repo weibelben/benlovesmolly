@@ -40,7 +40,7 @@ type GuestList struct {
 
 // loadGuestList reads the invitee CSV. Each row is:
 //
-//	first, last, party, nicknames, email, notes
+//	first, last, party, nicknames, notes
 //
 // Guests sharing a party RSVP together; a blank party is a guest on their
 // own. Nicknames are separated by semicolons and stand in for the first name.
