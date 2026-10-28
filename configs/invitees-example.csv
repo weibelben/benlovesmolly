@@ -1,0 +1,4 @@
+# Example invitees CSV file
+# The real file is submoduled from a private repository
+John, Doe, johndoe@example.com, More info about John Doe
+Jane, Doe, janedoe@example.com, More info about Jane Doe
