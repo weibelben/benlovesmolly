@@ -96,6 +96,29 @@ export const registries = [
   { label: '[Registry Name]', url: '#' },
 ];
 
+// The About Us page shows each side as a column, couple first. Add a photo by
+// putting it in src/assets/party/ and setting `photo` to its file name.
+export const weddingParty = [
+  {
+    people: [
+      { name: 'Molly', role: 'Bride', bio: 'Hottest girl of all time' },
+      { name: 'Charlotte', role: 'Bridesmaid', bio: '[How Charlotte knows Molly.]' },
+      { name: 'Maggie', role: 'Bridesmaid', bio: '[How Maggie knows Molly.]' },
+      { name: 'Anna', role: 'Bridesmaid', bio: '[How Anna knows Molly.]' },
+      { name: 'Stella', role: 'Bridesmaid', bio: '[How Stella knows Molly.]' },
+    ],
+  },
+  {
+    people: [
+      { name: 'Ben', role: 'Groom', bio: 'Just a dude' },
+      { name: 'Alex', role: 'Groomsman', bio: '[How Alex knows Ben.]' },
+      { name: 'Rowan', role: 'Groomsman', bio: '[How Rowan knows Ben.]' },
+      { name: 'Duncan', role: 'Groomsman', bio: '[How Duncan knows Ben.]' },
+      { name: 'Joe', role: 'Groomsman', bio: '[How Joe knows Ben.]' },
+    ],
+  },
+];
+
 // Every photo in src/assets/gallery/ shows up in the gallery. Photos listed here
 // come first, in this order, with their description; any others follow after.
 // `ratio` and `position` crop a photo, e.g. to cut app UI out of a screenshot.

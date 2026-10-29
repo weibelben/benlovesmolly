@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import { weddingParty } from '../data/wedding.js';
+
+// Every image in src/assets/party/, keyed by file name.
+const files = import.meta.glob('../assets/party/*.{jpg,jpeg,png,webp,avif}', { eager: true, import: 'default' });
+const images = Object.fromEntries(Object.entries(files).map(([path, image]) => [path.split('/').pop(), image]));
+---
+<Base title="About Us">
+  <header class="page-title container">
+    <h1>About Us</h1>
+    <hr class="divider" />
+  </header>
+
+  <section class="container party">
+    {weddingParty.map((column, side) => (
+      <div class="side">
+        <h2>{column.side}</h2>
+        <ul>
+          {column.people.map((person, i) => (
+            <li class="profile" style={`--order: ${i * weddingParty.length + side}`}>
+              <Photo
+                src={person.photo && images[person.photo]}
+                alt={person.name}
+                ratio="1 / 1"
+                position={person.position}
+                sizes="(max-width: 800px) 50vw, 17rem"
+                label=""
+              />
+              <div class="details">
+                <p class="eyebrow">{person.role}</p>
+                <h3>{person.name}</h3>
+                <p class="bio">{person.bio}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </section>
+</Base>
+
+<style>
+  .party {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    padding-bottom: 4rem;
+  }
+  .side h2 {
+    text-align: center;
+  }
+  ul {
+    display: grid;
+    gap: 3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .profile :global(.photo) {
+    width: 50%;
+    margin: 0 auto;
+  }
+  .details {
+    padding-top: 1.25rem;
+    text-align: center;
+  }
+  .profile .eyebrow {
+    margin-bottom: 0.25rem;
+  }
+  .bio {
+    margin: 0;
+    color: var(--muted);
+  }
+  /* On one column, unwrap the sides and alternate them: bride, groom, bridesmaid, groomsman... */
+  @media (max-width: 800px) {
+    .party {
+      grid-template-columns: 1fr;
+    }
+    .side,
+    ul {
+      display: contents;
+    }
+    .side h2 {
+      display: none;
+    }
+    .profile {
+      order: var(--order);
+    }
+  }
+</style>
