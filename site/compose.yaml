@@ -2,7 +2,11 @@ name: benlovesmolly
 
 services:
  web:
-  build: ./web
+  build:
+   context: ./web
+   # The private submodule, for the paid fonts; see web/Dockerfile.
+   additional_contexts:
+    private: ../configs/benlovesmolly-private
   environment:
    SITE_PASSWORD_HASH: ${SITE_PASSWORD_HASH}
   depends_on:

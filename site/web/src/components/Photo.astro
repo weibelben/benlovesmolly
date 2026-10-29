@@ -2,6 +2,8 @@
 // Renders a photo, or a soft placeholder block until real photos are added.
 // Pass an imported image (from src/assets) to have Astro resize it and strip its
 // metadata at build time; a plain URL string is used as-is.
+// `crop` zooms in on part of a photo: [left, top, width, height] as percentages
+// of the whole photo. The box it sits in should have the same shape as that part.
 import { Image } from 'astro:assets';
 
 const {
@@ -11,11 +13,20 @@ const {
   position = 'center',
   sizes = '100vw',
   label = 'Photo coming soon',
+  grayscale = false,
+  crop = null,
 } = Astro.props;
 
-const style = `${ratio ? `aspect-ratio: ${ratio}; ` : ''}object-position: ${position}`;
+const filter = grayscale ? '; filter: grayscale(1)' : '';
+const style = `${ratio ? `aspect-ratio: ${ratio}; ` : ''}object-position: ${position}${filter}`;
+const [cx, cy, cw, ch] = crop ?? [];
+const cropStyle = crop && `left: ${(-cx / cw) * 100}%; top: ${(-cy / ch) * 100}%; width: ${10000 / cw}%; height: ${10000 / ch}%${filter}`;
 ---
-{typeof src === 'object' ? (
+{crop && typeof src === 'object' ? (
+  <span class="photo cropped" style={ratio ? `aspect-ratio: ${ratio}` : undefined}>
+    <Image src={src} alt={alt} widths={[400, 800, 1200, 1600]} sizes={sizes} loading="lazy" style={cropStyle} />
+  </span>
+) : typeof src === 'object' ? (
   <Image class="photo" src={src} alt={alt} widths={[400, 800, 1200, 1600]} sizes={sizes} loading="lazy" style={style} />
 ) : src ? (
   <img class="photo" src={src} alt={alt} loading="lazy" style={style} />
@@ -31,6 +42,14 @@ const style = `${ratio ? `aspect-ratio: ${ratio}; ` : ''}object-position: ${posi
     width: 100%;
     height: auto;
     object-fit: cover;
+  }
+  .cropped {
+    position: relative;
+    overflow: hidden;
+  }
+  .cropped :global(img) {
+    position: absolute;
+    max-width: none;
   }
   .placeholder {
     display: grid;

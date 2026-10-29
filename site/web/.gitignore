@@ -6,6 +6,10 @@ dist/
 # dependencies
 node_modules/
 
+# paid fonts, copied in from the private submodule by `make fonts` and the
+# Docker build; their licence doesn't allow publishing them
+src/fonts/
+
 # logs
 npm-debug.log*
 yarn-debug.log*

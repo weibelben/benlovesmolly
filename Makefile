@@ -2,7 +2,7 @@ COMPOSE := docker compose -f site/compose.yaml
 API_DIR := site/api
 WEB_DIR := site/web
 
-.PHONY: up down build deploy deploy-web restart-api update-invitees dev dev-api logs ps test psql
+.PHONY: up down build deploy deploy-web restart-api update-invitees update-submodules fonts dev dev-api logs ps test psql
 
 up:
 	$(COMPOSE) up -d
@@ -28,7 +28,19 @@ restart-api:
 update-invitees:
 	git submodule update --init --remote configs/benlovesmolly-private
 
-dev:
+# Pull the latest of every submodule (guest list, fonts) from its main branch.
+update-submodules:
+	git submodule update --init --remote --recursive
+	$(MAKE) fonts
+
+# Copy the paid fonts from the private submodule into the site for local
+# builds; the Docker build copies them itself. Keep in step with web/Dockerfile.
+FONTS := configs/benlovesmolly-private/Le-Studio-Nocturne-Nostalgic-Set
+fonts:
+	mkdir -p $(WEB_DIR)/src/fonts
+	cp "$(FONTS)/Le Studio Nocturne.woff2" $(WEB_DIR)/src/fonts/le-studio-nocturne.woff2
+
+dev: fonts
 	cd $(WEB_DIR) && npm run dev -- --host
 
 # Runs the API on :8080 against the example guest list, for `make dev` to
