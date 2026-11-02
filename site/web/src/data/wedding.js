@@ -13,6 +13,9 @@ export const wedding = {
   location: 'Cranberry Isles, ME',
 };
 
+// Full-width, uncropped photo on the home page, from src/assets/hero/.
+export const heroPhoto = 'Molly-Ben-Color-Film-76.jpg';
+
 // Every RSVP button on the site points here.
 export const rsvpUrl = '/rsvp/';
 
