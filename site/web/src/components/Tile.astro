@@ -1,0 +1,33 @@
+---
+// A photo that opens full-size in the Our Story page's photo viewer when clicked.
+// Takes the same props as Photo.
+import Photo from './Photo.astro';
+
+const { alt, ...props } = Astro.props;
+---
+<button class="tile" type="button" aria-label={alt ? `View photo: ${alt}` : 'View photo'}>
+  <Photo alt={alt} ratio={null} {...props} />
+</button>
+
+<style>
+  .tile {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: zoom-in;
+  }
+  .tile :global(.photo) {
+    height: 100%;
+    transition: opacity 0.2s ease;
+  }
+  .tile:hover :global(.photo) {
+    opacity: 0.88;
+  }
+  .tile:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+  }
+</style>

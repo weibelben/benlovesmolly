@@ -1,0 +1,333 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Tile from '../components/Tile.astro';
+import '@fontsource/gelasio/400.css';
+import '@fontsource/montserrat/800.css';
+import { story } from '../data/wedding.js';
+
+// Every image in src/assets/gallery/ and src/assets/hero/, keyed by file name.
+const byName = (files) => Object.fromEntries(Object.entries(files).map(([path, image]) => [path.split('/').pop(), image]));
+const images = byName(import.meta.glob('../assets/gallery/*.{jpg,jpeg,png,webp,avif}', { eager: true, import: 'default' }));
+const heroes = byName(import.meta.glob('../assets/hero/*.{jpg,jpeg,png,webp,avif}', { eager: true, import: 'default' }));
+
+// One wavy edge, 1080 wide like the mockup, rising and dipping 30 units.
+const wave = 'C90 0 90 29.7 180 29.7 C270 29.7 270 0 360 0 C450 0 450 29.7 540 29.7 C630 29.7 630 0 720 0 C810 0 810 29.7 900 29.7 C990 29.7 990 0 1080 0';
+---
+<Base title={story.title} overlay>
+  <div class="story">
+  <header class="hero">
+    <Photo src={heroes[story.hero.file]} alt={story.hero.alt} ratio={null} position="50% 100%" />
+    <h1 class="visually-hidden">{story.title}</h1>
+    <p class="visually-hidden">{story.hero.left} {story.hero.right}</p>
+    <!-- The title and the two lines curving around the couple. Coordinates are
+         the mockup's, over the whole photo, and the drawing is cropped the
+         same way as the photo so they stay lined up at any screen shape. -->
+    <svg class="lettering" viewBox="0 -147.2 1080 720" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <path id="left-line" d="M16.8 461.6 C22.4 461.7 38.6 463.9 50.5 462.0 C62.4 460.1 76.7 456.3 88.4 450.4 C100.1 444.5 110.1 438.4 120.6 426.5 C131.1 414.6 140.6 394.8 151.4 378.9 C162.2 362.9 173.7 344.7 185.6 330.8 C197.5 316.9 210.5 305.3 222.6 295.4 C234.7 285.5 246.9 277.9 258.0 271.3 C269.1 264.7 277.6 262.3 289.1 255.7 C300.6 249.1 314.4 240.7 327.0 231.7 C339.6 222.7 355.5 213.9 364.5 201.6 C373.5 189.2 377.6 166.9 380.9 157.6 C384.2 148.3 383.8 147.9 384.4 146.0" />
+      <path id="right-line" d="M518.5 160.8 C523.3 157.7 536.6 146.3 547.1 141.9 C557.6 137.5 569.4 134.5 581.4 134.4 C593.4 134.3 607.9 137.0 619.1 141.6 C630.3 146.2 639.7 151.6 648.8 161.8 C657.9 172.0 665.0 189.4 673.7 202.8 C682.5 216.2 690.9 229.7 701.3 242.3 C711.7 254.9 723.1 267.1 735.9 278.5 C748.7 289.9 764.6 301.5 778.3 310.4 C792.0 319.3 803.9 324.0 818.2 331.8 C832.6 339.6 850.5 347.4 864.4 357.2 C878.3 367.0 892.5 381.0 901.7 390.6 C910.9 400.2 916.2 410.0 919.8 414.9 C923.4 419.8 922.8 418.9 923.4 419.7" />
+      <text class="title" x="25" y="233.6" transform="rotate(-17 25 233.6)" textLength="345" lengthAdjust="spacingAndGlyphs">{story.title}</text>
+      <text class="line"><textPath href="#left-line" textLength="508" lengthAdjust="spacingAndGlyphs">{story.hero.left}</textPath></text>
+      <text class="line"><textPath href="#right-line" textLength="526" lengthAdjust="spacingAndGlyphs">{story.hero.right}</textPath></text>
+    </svg>
+  </header>
+
+  {story.eras.map(({ years, blurb, grid, strip }) => (
+    <section class="era">
+      <svg class="wave top" viewBox="0 0 1080 31" preserveAspectRatio="none" aria-hidden="true"><path d={`M0 0 ${wave} V31 H0 Z`} /></svg>
+      <div class="band">
+        <h2 class="years">{years}</h2>
+        <p class="blurb">{blurb}</p>
+      </div>
+
+      <ul class="grid">
+        {grid.map((photo) => (
+          <li class:list={['frame', { big: photo.big }]}>
+            {photo.file ? (
+              <Tile {...photo} src={images[photo.file]} sizes={photo.big ? '50vw' : '25vw'} />
+            ) : (
+              <div class="blank" title={photo.missing}></div>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <ul class="strip">
+        {strip.map((photo) => (
+          <li>
+            {photo.file ? <Tile {...photo} src={images[photo.file]} sizes="20vw" /> : <div class="blank" title={photo.missing}></div>}
+          </li>
+        ))}
+      </ul>
+      <svg class="wave bottom" viewBox="0 0 1080 30" preserveAspectRatio="none" aria-hidden="true"><path d={`M0 0 ${wave} Z`} /></svg>
+    </section>
+  ))}
+  </div>
+
+  <dialog class="lightbox" aria-label="Photo viewer">
+    <img class="full" alt="" />
+    <button class="close" type="button" aria-label="Close">×</button>
+    <button class="nav prev" type="button" aria-label="Previous photo">‹</button>
+    <button class="nav next" type="button" aria-label="Next photo">›</button>
+  </dialog>
+</Base>
+
+<script>
+  const tiles = [...document.querySelectorAll<HTMLButtonElement>('.tile')];
+  const dialog = document.querySelector<HTMLDialogElement>('.lightbox')!;
+  const full = dialog.querySelector<HTMLImageElement>('.full')!;
+  let current = 0;
+
+  // Show tile i full-size: the whole photo, uncropped, but still black and
+  // white if the tile is.
+  function show(i: number) {
+    current = (i + tiles.length) % tiles.length;
+    const img = tiles[current].querySelector('img')!;
+    full.srcset = img.srcset;
+    full.sizes = '100vw';
+    full.src = img.src;
+    full.alt = img.alt;
+    full.style.filter = img.style.filter;
+  }
+
+  tiles.forEach((tile, i) =>
+    tile.addEventListener('click', () => {
+      show(i);
+      dialog.showModal();
+    }),
+  );
+
+  dialog.querySelector('.close')!.addEventListener('click', () => dialog.close());
+  dialog.querySelector('.prev')!.addEventListener('click', () => show(current - 1));
+  dialog.querySelector('.next')!.addEventListener('click', () => show(current + 1));
+
+  // Clicking the dark area around the photo closes it.
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') show(current - 1);
+    if (event.key === 'ArrowRight') show(current + 1);
+  });
+
+  let touchX: number | null = null;
+  dialog.addEventListener('touchstart', (event) => (touchX = event.touches[0].clientX), { passive: true });
+  dialog.addEventListener('touchend', (event) => {
+    if (touchX === null) return;
+    const dx = event.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+</script>
+
+<style>
+  /* Paid font, copied in from the private repo; see `make fonts`. */
+  @font-face {
+    font-family: 'Le Studio Nocturne';
+    src: url('../fonts/le-studio-nocturne.woff2') format('woff2');
+    font-display: swap;
+  }
+
+  /* Everything is measured in mockup units: the mockup is 1080 units wide, so
+     1u is 1/1080 of the page width at any screen size and the page looks the
+     same on a phone, just smaller. */
+  .hero,
+  .era {
+    --u: calc(100cqw / 1080);
+    --plum: #831e58;
+    --deep-plum: #740d48;
+    --cream: #fffcf0;
+  }
+  .story {
+    container-type: inline-size;
+    background: #831e58;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .hero {
+    position: relative;
+  }
+  .hero :global(.photo) {
+    aspect-ratio: 1080 / 573;
+  }
+  .lettering {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Le Studio Nocturne', cursive;
+    fill: var(--cream);
+    pointer-events: none;
+  }
+  .lettering path {
+    fill: none;
+  }
+  .title {
+    font-size: 70px;
+  }
+  .line {
+    font-size: 17.5px;
+  }
+  /* Phones show the whole photo, which leaves room above the couple for the
+     title below the header. */
+  @media (max-width: 600px) {
+    .hero :global(.photo) {
+      aspect-ratio: 3 / 2;
+    }
+  }
+
+  .era {
+    position: relative;
+    background: var(--deep-plum);
+    color: var(--cream);
+  }
+  .wave {
+    display: block;
+    width: 100%;
+    fill: var(--deep-plum);
+  }
+  /* The top edge waves up over the bottom of the photo. */
+  .wave.top {
+    position: absolute;
+    bottom: 100%;
+    height: calc(31 * var(--u));
+  }
+  .wave.bottom {
+    height: calc(30 * var(--u));
+    margin-top: calc(20.5 * var(--u));
+    margin-bottom: calc(40 * var(--u));
+    background: var(--plum);
+  }
+  .band {
+    display: grid;
+    grid-template-columns: calc(75 * var(--u)) calc(177.4 * var(--u)) calc(73.6 * var(--u)) calc(678.7 * var(--u));
+    align-items: center;
+    height: calc(75 * var(--u));
+    text-align: center;
+  }
+  .years {
+    grid-column: 2;
+    margin: 0;
+    font-family: 'Montserrat', var(--sans);
+    font-size: calc(29.4 * var(--u));
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .blurb {
+    grid-column: 4;
+    margin: 0;
+    font-family: 'Gelasio', Georgia, serif;
+    font-size: calc(18 * var(--u));
+    line-height: calc(24.7 * var(--u));
+  }
+  .grid,
+  .strip {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: calc(194.1 * var(--u));
+    gap: calc(7.3 * var(--u));
+    padding: 0 calc(11.5 * var(--u));
+  }
+  .frame {
+    min-width: 0;
+    border: calc(3 * var(--u)) solid var(--cream);
+  }
+  .frame.big {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  /* Five photos side by side inside one cream frame. */
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: calc(217.9 * var(--u));
+    margin: calc(7.7 * var(--u)) calc(11.5 * var(--u)) 0;
+    padding: calc(4 * var(--u));
+    background: var(--cream);
+  }
+  .strip li {
+    min-width: 0;
+  }
+  /* A space saved for a photo that hasn't been added yet. */
+  .blank {
+    height: 100%;
+    background: var(--plum);
+  }
+
+  .lightbox {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+  .lightbox::backdrop {
+    background: rgba(24, 21, 18, 0.92);
+  }
+  .full {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 92vw;
+    max-height: 88vh;
+    object-fit: cover;
+  }
+  .lightbox button {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    font-family: var(--serif);
+    font-size: 2.25rem;
+    line-height: 1;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .lightbox button:hover {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  .close {
+    top: 1rem;
+    right: 1rem;
+  }
+  .nav {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .prev {
+    left: 1rem;
+  }
+  .next {
+    right: 1rem;
+  }
+  /* Keep the page behind from scrolling while a photo is open. */
+  :global(html:has(dialog[open])) {
+    overflow: hidden;
+  }
+</style>

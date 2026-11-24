@@ -1,0 +1,154 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import { hotelBlocks, otherHotels, thingsToDo } from '../data/wedding.js';
+---
+<Base title="Logistics">
+  <header class="page-title container">
+    <h1>Logistics</h1>
+    <hr class="divider" />
+  </header>
+
+  <section class="section container">
+    <h2>Travel</h2>
+    <div class="prose">
+      <p>[Nearest airport and how far it is.]</p>
+      <p>[Ride-share, rental car, and public transit options.]</p>
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>Stay</h2>
+    <div class="prose">
+      <p>[A short note about the event locations and which area of town is most convenient.]</p>
+    </div>
+
+    <h3 class="sub">Hotel Room Blocks</h3>
+    <ul class="hotels">
+      {hotelBlocks.map((hotel) => (
+        <li class="hotel">
+          <h4>{hotel.name}</h4>
+          <p class="muted">{hotel.address}</p>
+          <p>{hotel.details}</p>
+          <a class="button button-outline" href={hotel.url}>Book</a>
+        </li>
+      ))}
+    </ul>
+
+    <h3 class="sub">Other Hotel Options</h3>
+    <ul class="list">
+      {otherHotels.map((hotel) => (
+        <li>{hotel.name} <span class="muted">– {hotel.area}</span></li>
+      ))}
+    </ul>
+
+    <h3 class="sub">Airbnb</h3>
+    <div class="prose">
+      <p>[Suggested neighborhoods for vacation rentals.]</p>
+    </div>
+  </section>
+
+  <section class="section things">
+    <div class="container">
+      <h2>Things to Do</h2>
+      <div class="prose">
+        <p>[A welcome note for out-of-town guests.]</p>
+      </div>
+    </div>
+
+    {thingsToDo.map((category) => (
+      <div class="category">
+        <Photo ratio="4 / 1" />
+        <div class="container">
+          <h3>{category.title}</h3>
+          <div class="groups">
+            {category.groups.map((group) => (
+              <div>
+                <h4>{group.heading}</h4>
+                <ul class="group-items">
+                  {group.items.map((item) => <li>{item}</li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+  </section>
+</Base>
+
+<style>
+  .section + .section {
+    border-top: 1px solid var(--line);
+  }
+  .sub {
+    margin-top: 3rem;
+  }
+  .hotels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.5rem;
+    max-width: 52rem;
+    margin: 1.5rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hotel {
+    padding: 2rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+  }
+  .hotel h4 {
+    margin: 0 0 0.25rem;
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .hotel p {
+    margin: 0 0 1rem;
+  }
+  .list {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    line-height: 2;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .things {
+    padding-bottom: 0;
+  }
+  .category {
+    padding-bottom: 3rem;
+    text-align: center;
+  }
+  .things > .container {
+    margin-bottom: 2.5rem;
+  }
+  .category h3 {
+    margin: 2.5rem 0 1.5rem;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  }
+  .groups h4 {
+    margin: 0 0 0.5rem;
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 400;
+  }
+  .category :global(.photo) {
+    min-height: 10rem;
+  }
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 2rem;
+  }
+  .group-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+</style>
