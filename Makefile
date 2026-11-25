@@ -2,7 +2,7 @@ COMPOSE := docker compose -f site/compose.yaml
 API_DIR := site/api
 WEB_DIR := site/web
 
-.PHONY: up down build deploy deploy-web restart-api update-invitees update-submodules fonts dev dev-api logs ps test psql
+.PHONY: up down build deploy deploy-web restart-api update-invitees update-submodules fonts photos dev dev-api logs ps test psql
 
 up:
 	$(COMPOSE) up -d
@@ -31,7 +31,7 @@ update-invitees:
 # Pull the latest of every submodule (guest list, fonts) from its main branch.
 update-submodules:
 	git submodule update --init --remote --recursive
-	$(MAKE) fonts
+	$(MAKE) fonts photos
 
 # Copy the paid fonts from the private submodule into the site for local
 # builds; the Docker build copies them itself. Keep in step with web/Dockerfile.
@@ -40,7 +40,20 @@ fonts:
 	mkdir -p $(WEB_DIR)/src/fonts
 	cp "$(FONTS)/Le Studio Nocturne.woff2" $(WEB_DIR)/src/fonts/le-studio-nocturne.woff2
 
-dev: fonts
+# Copy each page's photos from its folder in the private submodule into
+# src/assets/<page>/, replacing what was there so deleted photos go too. The
+# Docker build copies them itself. Keep in step with web/Dockerfile.
+PRIVATE := configs/benlovesmolly-private
+PHOTO_DIRS := Home:home BridalParty:bridal-party OurStory:our-story Logistics:logistics Registry:registry
+photos:
+	@for pair in $(PHOTO_DIRS); do \
+		src=$(PRIVATE)/$${pair%%:*}; dest=$(WEB_DIR)/src/assets/$${pair##*:}; \
+		rm -rf "$$dest"; mkdir -p "$$dest"; \
+		find "$$src" -maxdepth 1 -type f ! -name README.md -exec cp {} "$$dest"/ \; ; \
+		echo "$$src -> $$dest"; \
+	done
+
+dev: fonts photos
 	cd $(WEB_DIR) && npm run dev -- --host
 
 # Runs the API on :8080 against the example guest list, for `make dev` to

@@ -10,6 +10,14 @@ node_modules/
 # Docker build; their licence doesn't allow publishing them
 src/fonts/
 
+# photos, one folder per page, copied in from the private submodule by
+# `make photos` and the Docker build; kept out of this public repo
+src/assets/home/
+src/assets/bridal-party/
+src/assets/our-story/
+src/assets/logistics/
+src/assets/registry/
+
 # logs
 npm-debug.log*
 yarn-debug.log*
