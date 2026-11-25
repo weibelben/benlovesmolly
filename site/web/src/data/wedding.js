@@ -13,6 +13,16 @@ export const wedding = {
   location: 'Cranberry Isles, ME',
 };
 
+// The footer on every page: a strip of photo from src/assets/home/ with the
+// date, our names and the place written across it. `crop` is [left, top,
+// width, height] as percentages of the photo.
+export const footer = {
+  photo: 'Molly-Ben-Color-Film-11.jpg',
+  crop: [2.7, 35.4, 94.3, 18.9],
+  date: 'September 09, 2028',
+  place: 'Cranberry Island',
+};
+
 // Full-width, uncropped photo on the home page, from src/assets/home/.
 export const heroPhoto = 'Molly-Ben-Color-Film-76.jpg';
 
