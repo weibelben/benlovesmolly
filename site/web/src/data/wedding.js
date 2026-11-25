@@ -13,7 +13,7 @@ export const wedding = {
   location: 'Cranberry Isles, ME',
 };
 
-// Full-width, uncropped photo on the home page, from src/assets/hero/.
+// Full-width, uncropped photo on the home page, from src/assets/home/.
 export const heroPhoto = 'Molly-Ben-Color-Film-76.jpg';
 
 // Every RSVP button on the site points here.
@@ -100,7 +100,7 @@ export const registries = [
 ];
 
 // The Bridal Party page shows each side as a column, couple first. Add a photo by
-// putting it in src/assets/party/ and setting `photo` to its file name.
+// putting it in src/assets/bridal-party/ and setting `photo` to its file name.
 export const weddingParty = [
   {
     people: [
@@ -122,18 +122,18 @@ export const weddingParty = [
   },
 ];
 
-// The Our Story page: a big photo at the top, from src/assets/hero/, with the
+// The Our Story page: a big photo at the top, from src/assets/our-story/, with the
 // title and two lines written around the couple, then one section per era.
-// Photos are in src/assets/gallery/. On any photo, `crop` zooms in ([left,
+// Photos are in src/assets/our-story/ too. On any photo, `crop` zooms in ([left,
 // top, width, height] as percentages of the photo) and `grayscale` makes it
 // black and white. A photo with `missing` instead of `file` shows as a blank
 // space until it's added; `missing` says what goes there.
 export const story = {
   title: 'Our Story',
   hero: {
-    file: 'gallery_porch_night.jpg',
+    file: 'PrimaryPhoto_3.jpg',
     alt: 'A couple smiling in lawn chairs at night, drinks in hand.',
-    left: 'Cranberry Island is the most cherished, formative place to us.',
+    left: 'Cranberry Island is the place we cherish most.',
     right: 'It’s where we grew up, made lifelong friendships, and fell in love.',
   },
   eras: [
@@ -144,28 +144,33 @@ export const story = {
       // Four columns, filled left to right. The `big` photo takes up two
       // columns and two rows in the middle.
       grid: [
-        { missing: 'Black-and-white group photo on a dock', grayscale: true },
-        { file: 'dock_stroller.jpg', alt: 'Three adults on a dock by the water, a baby in a stroller in front.', crop: [6.2, 0.8, 87.7, 98.7] },
-        { file: 'porch_steps.jpg', alt: 'A big group of family and kids sitting on porch steps.', crop: [16.9, 13.1, 70.7, 70.6] },
-        { file: 'porch_chairs.jpg', alt: 'Two men in porch chairs with young boys on their laps, one man waving.', crop: [8.8, 13.5, 83.6, 83.3], grayscale: true },
-        { missing: 'Big group of adults and kids on a dock' },
-        { file: 'beach_buckets.jpg', alt: 'Two toddlers in sun hats playing with buckets on a rocky beach.', grayscale: true, big: true },
-        { file: 'big_smiles.jpg', alt: 'A grinning boy cheek to cheek with a smiling woman.' },
-        { missing: 'Dinner around a wooden table' },
-        { missing: 'Kids on a porch with a white railing' },
-        { file: 'family_country_road.jpg', alt: 'A family of three smiling on a country road, the boy held between his parents.', grayscale: true },
-        { file: 'swim_towels.jpg', alt: 'Three kids wrapped in towels on a dock after a swim.' },
-        { missing: 'Two boys grinning by a window' },
-        { file: 'reading_in_bed.jpg', alt: 'A woman reading a book in bed with two young boys.', crop: [8.8, 3, 78.8, 78.4], grayscale: true },
+        { file: '08200142.jpg', alt: 'Two families with young kids on a dock, the harbor behind them.', crop: [28, 30.4, 60.7, 60.5], grayscale: true },
+        { file: 'XKing.jpg', alt: 'Three adults on a dock by the water, a baby in a stroller in front.', crop: [6.2, 0.8, 87.7, 98.6] },
+        { file: 'XGranno.jpg', alt: 'A big group of family and kids sitting on porch steps.', crop: [16.9, 13.1, 70.7, 70.7] },
+        { file: 'XBob.jpg', alt: 'Two men in porch chairs with young boys on their laps, one man waving.', crop: [8.7, 13.5, 83.6, 83.3], grayscale: true },
+        { file: 'SullivanDavidAdi.jpg.jpg', alt: 'A big group of adults and kids on a dock.', crop: [12.7, 6.8, 75.9, 75.7] },
+        { file: 'BenMolly2001_1.jpg', alt: 'Two toddlers in sun hats playing with buckets on a rocky beach.', crop: [0.8, 0.3, 99.1, 99.5], grayscale: true, big: true },
+        { file: 'SeimerPriscilla.jpg', alt: 'A grinning boy cheek to cheek with a smiling woman.', crop: [0.3, 0.5, 98.8, 98.3] },
+        { file: 'FerreiraWill.jpg', alt: 'Two boys grinning by a window.', crop: [6, 0.5, 88.1, 99] },
+        { missing: 'Kids around a wooden table on a deck, finishing dinner' },
+        { file: 'GertmenianJimSam.jpg', alt: 'A family of three smiling on a country road, the boy held between his parents.', crop: [0.3, 0.5, 99.4, 99], grayscale: true },
+        { file: 'FlowersJoe.jpg', alt: 'Three kids wrapped in towels on a dock after a swim.', crop: [0.6, 0.5, 98.7, 99] },
+        { file: 'IMG_5603 (1).jpg', alt: 'A man in a cap next to a red-haired girl in sunglasses.', crop: [6.2, 0.5, 87.7, 99] },
+        { file: 'DixonGlynis.jpg', alt: 'A woman reading a book in bed with two young boys.', crop: [8.8, 3, 78.8, 78.4], grayscale: true },
       ],
       // Five across in one frame along the bottom.
       strip: [
-        { file: 'braiding_hair.jpg', alt: 'A woman braiding a smiling girl’s hair by a window.', crop: [15.6, 0, 72, 95.9] },
-        { file: 'rocky_beach.jpg', alt: 'A woman and a small child in a red hat relaxing on a rocky beach.', crop: [22.2, 0, 72, 95.9] },
-        { file: 'kids_on_deck.jpg', alt: 'Three young kids on a wooden deck, one holding something out to the camera.', crop: [19.9, 0, 72, 95.9] },
-        { missing: 'A man hugging a girl by the water' },
-        { file: 'woods_walk.jpg', alt: 'Three kids standing on a path in the woods.', crop: [13, 19.2, 60.6, 80.8] },
+        { file: 'GuyverRebecca.jpg', alt: 'A woman braiding a smiling girl’s hair by a window.', crop: [15.5, 0, 72, 96] },
+        { file: 'FrankSarah.jpg', alt: 'A woman and a small child in a red hat relaxing on a rocky beach.', crop: [22.2, 0, 72, 96] },
+        { file: 'MossLauren2003.jpg', alt: 'Three young kids on a wooden deck, one holding something out to the camera.', crop: [19.9, 0, 72, 96] },
+        { file: 'WeibelDavid.jpg', alt: 'A man hugging a girl by the water.', crop: [18.7, 10.2, 64.1, 85.7] },
+        { file: 'GuyverHudsonFiggy.jpg', alt: 'Three kids standing on a path in the woods.', crop: [13, 19.2, 60.6, 80.9] },
       ],
     },
   ],
+  // The next part of the story, below the photos on a grey-green background.
+  next: {
+    blurb:
+      'Living across the street from one another, our summers were always intertwined. Over time, we began to intentionally seek each other out: for tennis matches, movie nights, dock jumping, star gazing…',
+  },
 };

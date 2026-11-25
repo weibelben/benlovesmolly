@@ -3,8 +3,8 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import { weddingParty } from '../data/wedding.js';
 
-// Every image in src/assets/party/, keyed by file name.
-const files = import.meta.glob('../assets/party/*.{jpg,jpeg,png,webp,avif}', { eager: true, import: 'default' });
+// Every image in src/assets/bridal-party/, keyed by file name.
+const files = import.meta.glob('../assets/bridal-party/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG}', { eager: true, import: 'default' });
 const images = Object.fromEntries(Object.entries(files).map(([path, image]) => [path.split('/').pop(), image]));
 ---
 <Base title="Bridal Party">

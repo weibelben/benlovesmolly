@@ -4,8 +4,8 @@ import Photo from '../components/Photo.astro';
 import Squiggle from '../components/Squiggle.astro';
 import { couple, heroPhoto, weekend } from '../data/wedding.js';
 
-// Every image in src/assets/hero/, keyed by file name.
-const files = import.meta.glob('../assets/hero/*.{jpg,jpeg,png,webp,avif}', { eager: true, import: 'default' });
+// Every image in src/assets/home/, keyed by file name.
+const files = import.meta.glob('../assets/home/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG}', { eager: true, import: 'default' });
 const images = Object.fromEntries(Object.entries(files).map(([path, image]) => [path.split('/').pop(), image]));
 ---
 <Base overlay>
