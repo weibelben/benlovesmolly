@@ -23,39 +23,19 @@ export const footer = {
   place: 'Cranberry Island',
 };
 
-// Full-width, uncropped photo on the home page, from src/assets/home/.
-export const heroPhoto = 'Molly-Ben-Color-Film-76.jpg';
+// The home page: a photo from src/assets/home/ with our names and the date
+// written over it, then the place. `crop` is [left, top, width, height] as
+// percentages of the photo. The date is two lines.
+export const home = {
+  photo: 'Molly-Ben-Color-Film-76.jpg',
+  crop: [0, 6.9, 100, 93],
+  alt: 'Ben and Molly smiling side by side in a garden.',
+  date: ['September', '9, 2028'],
+  place: 'Cranberry Island',
+};
 
 // Every RSVP button on the site points here.
 export const rsvpUrl = '/rsvp/';
-
-export const weekend = [
-  {
-    day: 'Friday, September 8th',
-    title: 'Welcome Drinks',
-    time: '[7:00 – 9:00 PM]',
-    venue: '[Venue Name]',
-    address: '[Street Address, City, ST ZIP]',
-    attire: 'Cocktail',
-    notes: ['[Any notes for guests, e.g. dinner recommended beforehand.]'],
-  },
-  {
-    day: 'Saturday, September 9th',
-    title: 'Ceremony + Reception',
-    time: '[4:30 PM]',
-    venue: '[Venue Name]',
-    address: '[Street Address, City, ST ZIP]',
-    attire: '[Formal]',
-    notes: ['[Shuttle and parking details.]'],
-  },
-  {
-    day: 'Sunday, September 10th',
-    title: 'Farewell Brunch',
-    time: '[10:30 AM]',
-    venue: '[Venue Name]',
-    address: '[Street Address, City, ST ZIP]',
-  },
-];
 
 export const hotelBlocks = [
   {
