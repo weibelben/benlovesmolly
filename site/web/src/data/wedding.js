@@ -164,7 +164,7 @@ export const story = {
         { file: 'BenMolly2001_1.jpg', alt: 'Two toddlers in sun hats playing with buckets on a rocky beach.', crop: [0.8, 0.3, 99.1, 99.5], grayscale: true, big: true },
         { file: 'SeimerPriscilla.jpg', alt: 'A grinning boy cheek to cheek with a smiling woman.', crop: [0.3, 0.5, 98.8, 98.3] },
         { file: 'FerreiraWill.jpg', alt: 'Two boys grinning by a window.', crop: [6, 0.5, 88.1, 99] },
-        { missing: 'Kids around a wooden table on a deck, finishing dinner' },
+        { file: 'MossJake.jpg', alt: 'Kids around a wooden table on a deck, finishing dinner.', crop: [1.8, 13.6, 83.6, 83.3] },
         { file: 'GertmenianJimSam.jpg', alt: 'A family of three smiling on a country road, the boy held between his parents.', crop: [0.3, 0.5, 99.4, 99], grayscale: true },
         { file: 'FlowersJoe.jpg', alt: 'Three kids wrapped in towels on a dock after a swim.', crop: [0.6, 0.5, 98.7, 99] },
         { file: 'IMG_5603 (1).jpg', alt: 'A man in a cap next to a red-haired girl in sunglasses.', crop: [6.2, 0.5, 87.7, 99] },
