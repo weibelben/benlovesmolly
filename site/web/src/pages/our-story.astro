@@ -12,14 +12,18 @@ const images = byName(import.meta.glob('../assets/our-story/*.{jpg,jpeg,png,webp
 
 // One wavy edge, 1080 wide like the mockup, rising and dipping 30 units.
 const wave = 'C90 0 90 29.7 180 29.7 C270 29.7 270 0 360 0 C450 0 450 29.7 540 29.7 C630 29.7 630 0 720 0 C810 0 810 29.7 900 29.7 C990 29.7 990 0 1080 0';
-// The opposite edge, for the bottom of a section: low at both ends. `dy` moves
-// it down, for the green edge peeking out below.
-const waveDown = (dy) => {
+// A section's bottom edge, hanging below it: 30 units deep, low at the sides
+// (or high, with `flip`). `dy` moves it down, for the coloured line under it.
+const edge = (flip, dy) => {
   const lo = 29.7 + dy, hi = dy;
-  let d = `M0 0 V${lo}`;
-  for (let x = 0; x < 1080; x += 360) d += ` C${x + 90} ${lo} ${x + 90} ${hi} ${x + 180} ${hi} C${x + 270} ${hi} ${x + 270} ${lo} ${x + 360} ${lo}`;
+  const [a, b] = flip ? [hi, lo] : [lo, hi];
+  let d = `M0 0 V${a}`;
+  for (let x = 0; x < 1080; x += 360) d += ` C${x + 90} ${a} ${x + 90} ${b} ${x + 180} ${b} C${x + 270} ${b} ${x + 270} ${a} ${x + 360} ${a}`;
   return `${d} V0 Z`;
 };
+
+// A paragraph is a string, or a list of lines to break exactly there.
+const lines = (text) => (Array.isArray(text) ? text : [text]);
 ---
 <Base title={story.title} overlay>
   <div class="story">
@@ -39,45 +43,55 @@ const waveDown = (dy) => {
     </svg>
   </header>
 
-  {story.eras.map(({ years, blurb, grid, strip }) => (
-    <section class="era">
-      <svg class="wave top" viewBox="0 0 1080 31" preserveAspectRatio="none" aria-hidden="true"><path d={`M0 0 ${wave} V31 H0 Z`} /></svg>
-      <div class="band">
-        <h2 class="years">{years}</h2>
-        <p class="blurb">{blurb}</p>
-      </div>
+  {story.sections.map(({ theme, years, blurb, intro, grid, tiles, strip, outro, wave: bottom }, i) => (
+    <section class:list={['part', theme, { first: i === 0 }]}>
+      {i === 0 && (
+        <svg class="wave top" viewBox="0 0 1080 31" preserveAspectRatio="none" aria-hidden="true"><path d={`M0 0 ${wave} V31 H0 Z`} /></svg>
+      )}
+      {years && (
+        <div class="band">
+          <h2 class="years">{years}</h2>
+          <p class="blurb">{lines(blurb).map((line, j) => <Fragment>{j > 0 && <br />}{line}</Fragment>)}</p>
+        </div>
+      )}
 
-      <ul class="grid">
-        {grid.map((photo) => (
-          <li class:list={['frame', { big: photo.big }]}>
-            {photo.file ? (
-              <Tile {...photo} src={images[photo.file]} sizes={photo.big ? '50vw' : '25vw'} />
-            ) : (
-              <div class="blank" title={photo.missing}></div>
-            )}
-          </li>
-        ))}
-      </ul>
+      {intro?.map((text) => <p class="text intro">{lines(text).map((line, j) => <Fragment>{j > 0 && <br />}{line}</Fragment>)}</p>)}
 
-      <ul class="strip">
-        {strip.map((photo) => (
-          <li>
-            {photo.file ? <Tile {...photo} src={images[photo.file]} sizes="20vw" /> : <div class="blank" title={photo.missing}></div>}
-          </li>
-        ))}
-      </ul>
-      <svg class="wave bottom" viewBox="0 0 1080 41.7" preserveAspectRatio="none" aria-hidden="true">
-        <path class="edge" d={waveDown(12)} />
-        <path d={waveDown(0)} />
-      </svg>
+      {grid && (
+        <ul class:list={['grid', { square: tiles === 'square' }]}>
+          {grid.map((photo) => (
+            <li class:list={['frame', { big: photo.big }]}>
+              {photo.file ? (
+                <Tile {...photo} src={images[photo.file]} sizes={photo.big ? '50vw' : '25vw'} />
+              ) : (
+                <div class="blank" title={photo.missing}></div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {strip && (
+        <ul class="strip">
+          {strip.map((photo) => (
+            <li>
+              {photo.file ? <Tile {...photo} src={images[photo.file]} sizes="20vw" /> : <div class="blank" title={photo.missing}></div>}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {outro?.map((text) => <p class="text outro">{lines(text).map((line, j) => <Fragment>{j > 0 && <br />}{line}</Fragment>)}</p>)}
+
+      {bottom && (
+        <svg class="wave bottom" viewBox="0 0 1080 41.7" preserveAspectRatio="none" aria-hidden="true" style={`--edge: var(--${bottom.edge})`}>
+          <path class="edge" d={edge(bottom.flip, 12)} />
+          <path d={edge(bottom.flip, 0)} />
+        </svg>
+      )}
     </section>
   ))}
-
-  {story.next && (
-    <section class="chapter">
-      <p class="blurb">{story.next.blurb}</p>
-    </section>
-  )}
+  {story.tail && <div class:list={['part', 'tail', story.tail]}></div>}
   </div>
 
   <dialog class="lightbox" aria-label="Photo viewer">
@@ -149,18 +163,37 @@ const waveDown = (dy) => {
      1u is 1/1080 of the page width at any screen size and the page looks the
      same on a phone, just smaller. */
   .hero,
-  .era,
-  .chapter {
+  .part {
     --u: calc(100cqw / 1080);
   }
   .story {
     --plum: #831e58;
     --deep-plum: #740d48;
     --cream: #fffcf0;
-    --green: #c5cc84;
+    --citron: #c5cc84;
     --slate: #616f6f;
+    --teal: #294b4e;
+    --red: #c41d27;
     container-type: inline-size;
-    background: var(--slate);
+  }
+  /* Each section's background, text and heading colours. */
+  .plum {
+    --bg: var(--deep-plum);
+    --years: var(--citron);
+    color: var(--cream);
+  }
+  .slate {
+    --bg: var(--slate);
+    color: var(--cream);
+  }
+  .citron {
+    --bg: var(--citron);
+    --years: var(--teal);
+    color: var(--teal);
+  }
+  .red {
+    --bg: var(--red);
+    color: var(--cream);
   }
   .visually-hidden {
     position: absolute;
@@ -203,32 +236,37 @@ const waveDown = (dy) => {
     }
   }
 
-  .era {
+  /* Every section after the first starts below the wave hanging into it from
+     the one before. */
+  .part {
     position: relative;
-    padding-bottom: calc(14.2 * var(--u));
-    background: var(--deep-plum);
-    color: var(--cream);
+    padding: calc(41.7 * var(--u)) 0 calc(14.2 * var(--u));
+    background: var(--bg);
+  }
+  .part.first {
+    padding-top: 0;
   }
   .wave {
     display: block;
     width: 100%;
-    fill: var(--deep-plum);
+    fill: var(--bg);
   }
-  /* The top edge waves up over the bottom of the photo. */
-  /* Both waves tuck 1px into the section so no seam shows between them. */
+  /* The top edge waves up over the bottom of the photo. Both waves tuck 1px
+     into the section so no seam shows between them. */
   .wave.top {
     position: absolute;
     bottom: calc(100% - 1px);
     height: calc(31 * var(--u) + 1px);
   }
-  /* Hangs below the section over the grey-green, with a green edge under it. */
+  /* Hangs below the section over the next one, with a coloured line under it. */
   .wave.bottom {
     position: absolute;
+    z-index: 1;
     top: calc(100% - 1px);
     height: calc(41.7 * var(--u));
   }
   .wave .edge {
-    fill: var(--green);
+    fill: var(--edge);
   }
   .band {
     display: grid;
@@ -244,20 +282,40 @@ const waveDown = (dy) => {
     font-size: calc(40 * var(--u));
     font-weight: 800;
     line-height: 1;
-    color: var(--green);
+    color: var(--years);
     white-space: nowrap;
   }
-  .blurb {
-    grid-column: 4;
+  .blurb,
+  .text {
     margin: 0;
     font-family: 'Gelasio', Georgia, serif;
     font-size: calc(18 * var(--u));
     line-height: calc(24.7 * var(--u));
+    font-variant-numeric: oldstyle-nums;
   }
-  .chapter {
-    padding: calc(49.7 * var(--u)) calc(125 * var(--u)) calc(120 * var(--u));
-    color: var(--cream);
+  .blurb {
+    grid-column: 4;
+  }
+  /* Text between photos sits the same distance from what's above and below. */
+  .text {
+    margin: calc(8 * var(--u)) 0;
     text-align: center;
+  }
+  .outro {
+    margin: calc(10.9 * var(--u)) 0 0;
+  }
+  .outro + .outro {
+    margin-top: calc(12.9 * var(--u));
+  }
+  .slate {
+    padding-bottom: calc(10.2 * var(--u));
+  }
+  /* Room left for what comes next in the design. */
+  .citron {
+    padding-bottom: calc(60 * var(--u));
+  }
+  .tail {
+    height: calc(160 * var(--u));
   }
   .grid,
   .strip {
@@ -271,6 +329,10 @@ const waveDown = (dy) => {
     grid-auto-rows: calc(194.1 * var(--u));
     gap: calc(7.3 * var(--u));
     padding: 0 calc(11.5 * var(--u));
+  }
+  .grid.square {
+    grid-auto-rows: calc(258.8 * var(--u));
+    row-gap: calc(7.9 * var(--u));
   }
   .frame {
     min-width: 0;

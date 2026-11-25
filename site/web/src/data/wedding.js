@@ -136,13 +136,25 @@ export const story = {
     left: 'Cranberry Island is the place we cherish most.',
     right: 'It’s where we grew up, made lifelong friendships, and fell in love.',
   },
-  eras: [
+  // The page below the big photo: a run of sections, one after another. Each has
+  // a colour (`theme`: plum, slate, citron or red) and any of, in this order:
+  //   years + blurb  the heading row, years on the left and a note beside them
+  //   intro          paragraphs of text
+  //   grid           four columns of photos, filled left to right; the `big`
+  //                  photo takes two columns and two rows in the middle.
+  //                  `tiles: 'square'` makes them square rather than wide.
+  //   strip          five photos side by side in one frame
+  //   outro          paragraphs of text
+  //   wave           the wavy bottom edge: the colour of the thin line under it,
+  //                  and `flip` to start it high instead of low at the sides
+  // A paragraph is a string, or a list of lines to break exactly there.
+  // After the last section comes a plain band in the `tail` colour.
+  sections: [
     {
+      theme: 'plum',
       years: '1997 – 2018',
       blurb:
         'Our story doesn’t really start with a specific moment, rather a specific community of people who love us both unconditionally and made the island our home.',
-      // Four columns, filled left to right. The `big` photo takes up two
-      // columns and two rows in the middle.
       grid: [
         { file: '08200142.jpg', alt: 'Two families with young kids on a dock, the harbor behind them.', crop: [28, 30.4, 60.7, 60.5], grayscale: true },
         { file: 'XKing.jpg', alt: 'Three adults on a dock by the water, a baby in a stroller in front.', crop: [6.2, 0.8, 87.7, 98.6] },
@@ -158,7 +170,6 @@ export const story = {
         { file: 'IMG_5603 (1).jpg', alt: 'A man in a cap next to a red-haired girl in sunglasses.', crop: [6.2, 0.5, 87.7, 99] },
         { file: 'DixonGlynis.jpg', alt: 'A woman reading a book in bed with two young boys.', crop: [8.8, 3, 78.8, 78.4], grayscale: true },
       ],
-      // Five across in one frame along the bottom.
       strip: [
         { file: 'GuyverRebecca.jpg', alt: 'A woman braiding a smiling girl’s hair by a window.', crop: [15.5, 0, 72, 96] },
         { file: 'FrankSarah.jpg', alt: 'A woman and a small child in a red hat relaxing on a rocky beach.', crop: [22.2, 0, 72, 96] },
@@ -166,11 +177,55 @@ export const story = {
         { file: 'WeibelDavid.jpg', alt: 'A man hugging a girl by the water.', crop: [18.7, 10.2, 64.1, 85.7] },
         { file: 'GuyverHudsonFiggy.jpg', alt: 'Three kids standing on a path in the woods.', crop: [13, 19.2, 60.6, 80.9] },
       ],
+      wave: { edge: 'citron' },
+    },
+    {
+      theme: 'slate',
+      intro: [
+        [
+          'Living across the street from one another, our summers were always intertwined. Over time, we began to',
+          'intentionally seek each other out: for tennis matches, movie nights, dock jumping, star gazing…',
+        ],
+      ],
+      tiles: 'square',
+      grid: [
+        { file: 'BenMolly2012_3 - Edited.jpg', alt: 'A boy and a red-haired girl laughing together under a raised arm.', crop: [0.3, 5.9, 99.3, 75.6] },
+        { file: 'BenMolly2010_2 - Edited.jpg', alt: 'A red-haired girl and a boy grinning cheek to cheek.', crop: [0.3, 8.9, 99.3, 61.6] },
+        { file: '2011_Y - Edited.jpg', alt: 'A smiling girl and a boy by a white porch railing.', crop: [0.3, 4.2, 99.3, 84.9] },
+        { file: 'BenMolly2010_1 - Edited.jpg', alt: 'A boy and a red-haired girl smiling side by side.', crop: [1.9, 0.3, 96.3, 99.4] },
+        { file: '2010.jpg - Edited - Edited.jpg', alt: 'A boy and a girl smiling on a porch above a green lawn.', crop: [0.3, 8.4, 99.3, 74.1] },
+        { file: 'BenMolly2012_1.JPG', alt: 'A girl and a boy running together through the woods.', crop: [0.5, 33.8, 99.4, 66.1], big: true },
+        { file: 'BenMolly2010_3.jpg', alt: 'A man in a red hat hugging a red-haired girl and a boy.', crop: [0.3, 16.9, 99.3, 66.1] },
+        { file: '2008 - Edited.jpg', alt: 'A grinning boy in a red shirt with a little girl beside him.', crop: [0.3, 15.7, 99.3, 68.6] },
+        { file: '2011_X - Edited.jpg', alt: 'A boy with a lollipop and a girl pulling a face beside a bicycle light.', crop: [0.3, 16.9, 88.5, 58.1] },
+        { file: 'BenMolly2013_2.jpg', alt: 'Two kids climbing on the back of a truck.', crop: [0.3, 10.6, 99.3, 74.6] },
+        { file: 'GuyverPatrickHudson.jpg', alt: 'A boy and a girl in towels by the water, arms crossed.', crop: [8.8, 28.9, 37, 55.8] },
+        { file: '2014 - Edited.jpg', alt: 'A boy and a girl in sunglasses by the water.', crop: [10.2, 11.9, 80.4, 62.8] },
+        { file: 'IMG_3185.JPG', alt: 'Two people sunbathing on a dock.', crop: [0.4, 0.3, 99.3, 99.4] },
+      ],
+      outro: [
+        [
+          'All of our favorite memories happened together: hanging out at Freddie’s tree fort, playing the game at',
+          'Preble, scraping yellow paint, competing in the birthday Amazing Race, and late nights on the dock.',
+          'Cranberry wasn’t Cranberry without each other. We’ve always loved each other, but as some point it shifted:',
+        ],
+        [
+          'Maybe it was in 2012 under a tree at a Sullivan cocktail party…',
+          'Maybe it was in 2015 when we had our first kiss on the dock…',
+          'Maybe it was in 2018 when Molly decided to go to Wisconsin…',
+        ],
+      ],
+      wave: { edge: 'red', flip: true },
+    },
+    {
+      theme: 'citron',
+      years: '2018–2024',
+      blurb: [
+        'On August 30, 2018, Ben told Molly he was falling in love with her.',
+        'For six years we dated in a pattern: one year in-person, one year long-distance.',
+      ],
+      wave: { edge: 'teal' },
     },
   ],
-  // The next part of the story, below the photos on a grey-green background.
-  next: {
-    blurb:
-      'Living across the street from one another, our summers were always intertwined. Over time, we began to intentionally seek each other out: for tennis matches, movie nights, dock jumping, star gazing…',
-  },
+  tail: 'red',
 };
