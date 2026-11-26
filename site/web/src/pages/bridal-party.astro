@@ -19,61 +19,76 @@ const blob =
   'M350.9 107.5C335.3 72.1 313.3 36.5 277.7 18.1C274.5 16.5 271 14.8 267.6 13.6C250.7 6.1 232.9 2.1 214.5 1.4C212 1 209.3 .7 206.5 .5C189.1-.8 173.3 2.9 158.8 9.6C132.2 17.8 106.4 30.8 84.7 47C56.1 68.4 32.5 96 18.4 129.1C10 148.5 5.3 168.9 2.7 189.9C0 211.7-1.4 234.6 3.3 256.1C11.6 293.5 42.5 323.3 76.1 339.4C111.4 356.3 150.8 361.4 189.3 356.3C230.1 350.9 269 334.7 303.9 312.9C335.3 293.3 365.6 266.8 374.4 229.2C384 187.2 367.5 145.3 350.9 107.5Z';
 ---
 <Base title="Bridal Party" overlay>
-  <!-- Fixed behind the page, so it stays put while everything scrolls over it. -->
-  <div class="backdrop" aria-hidden="true">
-    {images[partyBackground] && (
-      <Image src={images[partyBackground]} alt="" widths={[800, 1400, 2000, 2800]} sizes="100vw" loading="eager" />
-    )}
-  </div>
+  <div class="scene">
+    <!-- Stuck behind the page, so it stays put while everything scrolls over it,
+         until the end of the scene, where the footer pushes it up. -->
+    <div class="backdrop" aria-hidden="true">
+      {images[partyBackground] && (
+        <Image src={images[partyBackground]} alt="" widths={[800, 1400, 2000, 2800]} sizes="100vw" loading="eager" />
+      )}
+    </div>
 
-  <!-- The blob shape, scaled to whatever box clips to it. -->
-  <svg class="defs" aria-hidden="true">
-    <clipPath id="blob" clipPathUnits="objectBoundingBox">
-      <path transform="scale(0.0026455 0.0027855)" d={blob} />
-    </clipPath>
-  </svg>
+    <!-- The blob shape, scaled to whatever box clips to it. -->
+    <svg class="defs" aria-hidden="true">
+      <clipPath id="blob" clipPathUnits="objectBoundingBox">
+        <path transform="scale(0.0026455 0.0027855)" d={blob} />
+      </clipPath>
+    </svg>
 
-  <div class="party">
-    <h1>Bridal Party</h1>
+    <div class="party">
+      <h1>Bridal Party</h1>
 
-    <ul>
-      {people.map((person) => person && (
-        <li>
-          <div class="frame">
-            <div class="blob">
-              <Photo
-                src={person.photo && images[person.photo]}
-                alt={person.name}
-                ratio="378 / 359"
-                position={person.position}
-                crop={person.crop}
-                sizes="(max-width: 700px) 70vw, 35vw"
-                label=""
-              />
-              <svg class="outline" viewBox="0 0 378 359" aria-hidden="true"><path d={blob} /></svg>
+      <ul>
+        {people.map((person) => person && (
+          <li>
+            <div class="frame">
+              <div class="blob">
+                <Photo
+                  src={person.photo && images[person.photo]}
+                  alt={person.name}
+                  ratio="378 / 359"
+                  position={person.position}
+                  crop={person.crop}
+                  sizes="(max-width: 700px) 70vw, 35vw"
+                  label=""
+                />
+                <svg class="outline" viewBox="0 0 378 359" aria-hidden="true"><path d={blob} /></svg>
+              </div>
             </div>
-          </div>
-          <p class="role">{person.role}</p>
-          <h2>{person.name}</h2>
-          <p class="bio">{person.bio}</p>
-        </li>
-      ))}
-    </ul>
+            <p class="role">{person.role}</p>
+            <h2>{person.name}</h2>
+            <p class="bio">{person.bio}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
   </div>
 </Base>
 
 <style>
-  /* Measured in the mockup's units: 1u is 1/1080 of the page width. */
+  /* Its own stacking layer, so the backdrop sits behind the writing but not
+     behind the page itself. */
+  .scene {
+    position: relative;
+    isolation: isolate;
+  }
+  /* A screen tall and sticky, so it holds still until the scene's end (where
+     the footer starts) reaches the bottom of the window, then goes up with it.
+     It keeps its full height, since a sticky box only moves once the end of
+     its container pushes on it; the page is pulled up over it instead. */
   .backdrop {
-    position: fixed;
-    inset: 0;
+    position: sticky;
+    top: 0;
     z-index: -1;
+    height: 100vh;
     background: #2b4a63;
   }
   .backdrop :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Crop from the top, so the photo's bottom edge meets the footer. */
+    object-position: center bottom;
   }
   /* Darken it a little so the cream writing reads over sky and trees. */
   .backdrop::after {
@@ -88,10 +103,12 @@ const blob =
     height: 0;
   }
 
+  /* Measured in the mockup's units: 1u is 1/1080 of the page width. */
   .party {
     --u: calc(100cqw / 1080);
     --cream: #fffcf0;
     container-type: inline-size;
+    margin-top: -100vh;
     /* The header floats over the page, so start below it. */
     padding: calc(4.5rem + 41 * var(--u)) 0 calc(240 * var(--u));
     color: var(--cream);
