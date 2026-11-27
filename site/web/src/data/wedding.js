@@ -89,12 +89,13 @@ export const registries = [
   { label: '[Registry Name]', url: '#' },
 ];
 
-// The Bridal Party page: each side is a column, couple first. Photos are in
-// src/assets/bridal-party/. Give a person `photo` (a file name there) to fill
-// their blob, and `position` (e.g. 'center top') to shift it in the blob, or
-// `crop` ([left, top, width, height] as percentages) to zoom in on part of it.
-// `hover` is a second photo shown while the cursor is over the first; it takes
-// the same `photo`, `position` and `crop`.
+// The Bridal Party page: each side is a column, couple first, paired up row by
+// row. Photos are in src/assets/bridal-party/, named <Name>1 (shown) and
+// <Name>2 (shown while the cursor is over it). Give a person `photo` (a file
+// name there) to fill their blob, and `position` (e.g. 'center top') to shift
+// it in the blob, or `crop` ([left, top, width, height] as percentages) to zoom
+// in on part of it. `hover` is the second photo; it takes the same `photo`,
+// `position` and `crop`. The crops are measured from the mockups.
 // `partyBackground` is the photo that stays put behind the page as it scrolls.
 export const partyBackground = 'IMG_4496.JPG';
 
@@ -104,14 +105,41 @@ export const weddingParty = [
       {
         name: 'Molly',
         role: 'Bride',
-        photo: 'MollyBaby.jpg',
-        hover: { photo: '2007 Maine 411_Original.jpg', crop: [9.65, 3.05, 76.6, 96.9] },
+        photo: 'Molly1.jpg',
+        crop: [0, 5.74, 100, 89.18],
+        hover: { photo: 'Molly2.jpg', crop: [0, 8.39, 100, 71.34] },
         bio: 'This is a blurb about me: Molly Meyer Kehoe. I have known Molly my whole life because I am her and she’s me. I am cool, fun, silly, and smart. I can’t wait to party at this freaking wedding woo hoooooo!',
       },
-      { name: 'Charlotte', role: 'Bridesmaid', bio: '[How Charlotte knows Molly.]' },
-      { name: 'Maggie', role: 'Bridesmaid', bio: '[How Maggie knows Molly.]' },
-      { name: 'Anna', role: 'Bridesmaid', bio: '[How Anna knows Molly.]' },
-      { name: 'Stella', role: 'Bridesmaid', bio: '[How Stella knows Molly.]' },
+      {
+        name: 'Charlotte',
+        role: 'Bridesmaid',
+        photo: 'Charlotte1.jpg',
+        crop: [37.64, 30.82, 30.84, 45.06],
+        hover: { photo: 'Charlotte2.jpg', crop: [30.27, 27.1, 54.41, 38.74] },
+        bio: '[How Charlotte knows Molly.]',
+      },
+      {
+        name: 'Anna',
+        role: 'Bridesmaid',
+        photo: 'Anna1.jpg',
+        crop: [0.03, 6, 52.92, 70.75],
+        hover: { photo: 'Anna2.jpg', crop: [10.05, 0, 70.01, 100] },
+        bio: '[How Anna knows Molly.]',
+      },
+      {
+        name: 'Maggie',
+        role: 'Bridesmaid',
+        hover: { photo: 'Maggie2.jpg', crop: [22.33, 24.1, 65.01, 46.36] },
+        bio: '[How Maggie knows Molly.]',
+      },
+      {
+        name: 'Stella',
+        role: 'Bridesmaid',
+        photo: 'Stella1.jpg',
+        crop: [30.69, 18.04, 27.26, 34.57],
+        hover: { photo: 'Stella2.jpg', crop: [13.54, 6.03, 70.24, 44.44] },
+        bio: '[How Stella knows Molly.]',
+      },
     ],
   },
   {
@@ -119,16 +147,50 @@ export const weddingParty = [
       {
         name: 'Ben',
         role: 'Groom',
-        photo: '2007 Maine 411_Original.jpg',
-        crop: [9.65, 3.05, 76.6, 96.9],
-        hover: { photo: 'MollyBaby.jpg' },
+        photo: 'Ben1.jpg',
+        crop: [9.77, 3.24, 76.61, 96.92],
+        hover: { photo: 'Ben2.jpg', crop: [17.29, 28.88, 61.74, 44.05] },
         bio: 'Ben loves snakes, bugs, skiing, and Molly!',
       },
-      { name: 'Alex', role: 'Groomsman', bio: '[How Alex knows Ben.]' },
-      { name: 'Rowan', role: 'Groomsman', bio: '[How Rowan knows Ben.]' },
-      { name: 'Duncan', role: 'Groomsman', bio: '[How Duncan knows Ben.]' },
-      { name: 'Joe', role: 'Groomsman', bio: '[How Joe knows Ben.]' },
+      {
+        name: 'Alex',
+        role: 'Best Man',
+        // The mockup used an edited copy of this photo; this is its crop, mapped
+        // onto the original.
+        hover: { photo: 'Alex2.jpg', crop: [50.12, 35.99, 27.13, 19.32] },
+        bio: '[How Alex knows Ben.]',
+      },
+      {
+        name: 'Duncan',
+        role: 'Groomsman',
+        hover: { photo: 'Duncan2.jpg', crop: [9.31, 43.17, 30.66, 21.84] },
+        bio: '[How Duncan knows Ben.]',
+      },
+      {
+        name: 'Rowan',
+        role: 'Groomsman',
+        hover: { photo: 'Rowan2.jpg', crop: [18.93, 10.06, 64.39, 45.95] },
+        bio: '[How Rowan knows Ben.]',
+      },
+      {
+        name: 'Joe',
+        role: 'Groomsman',
+        hover: { photo: 'Joe2.jpg', crop: [19.92, 17.73, 63.63, 45.38] },
+        bio: '[How Joe knows Ben.]',
+      },
     ],
+  },
+];
+
+// Shown last, centred under both columns.
+export const partyFinale = [
+  {
+    name: 'Freddie',
+    role: 'Lord of Love',
+    photo: 'Freddie1.jpg',
+    crop: [17.51, 5.7, 57.17, 83.39],
+    hover: { photo: 'Freddie2.jpg', crop: [16.05, 5.08, 74.71, 95.13] },
+    bio: '[About Freddie.]',
   },
 ];
 

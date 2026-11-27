@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
-import { weddingParty, partyBackground } from '../data/wedding.js';
+import { weddingParty, partyFinale, partyBackground } from '../data/wedding.js';
 import '@fontsource/gelasio/400.css';
 
 // Every image in src/assets/bridal-party/, keyed by file name.
@@ -12,7 +12,11 @@ const images = Object.fromEntries(Object.entries(files).map(([path, image]) => [
 // Pair the sides up row by row: bride and groom, then each bridesmaid beside a
 // groomsman. On a phone the rows stack, so the order still alternates.
 const rows = Math.max(...weddingParty.map((side) => side.people.length));
-const people = Array.from({ length: rows }, (_, i) => weddingParty.map((side) => side.people[i])).flat();
+// Then whoever comes last, centred under both columns.
+const people = [
+  ...Array.from({ length: rows }, (_, i) => weddingParty.map((side) => side.people[i])).flat(),
+  ...partyFinale.map((person) => ({ ...person, centered: true })),
+];
 
 // The photo frame from the mockup, 378 by 359.
 const blob =
@@ -40,7 +44,7 @@ const blob =
 
       <ul>
         {people.map((person) => person && (
-          <li>
+          <li class:list={{ centered: person.centered }}>
             <div class="frame">
               <div class="blob">
                 <Photo
@@ -151,6 +155,11 @@ const blob =
     list-style: none;
   }
 
+  .centered {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(378 * var(--u));
+  }
   .frame {
     position: relative;
   }
