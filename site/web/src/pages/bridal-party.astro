@@ -52,6 +52,19 @@ const blob =
                   sizes="(max-width: 700px) 70vw, 35vw"
                   label=""
                 />
+                {person.hover && (
+                  <div class="hover">
+                    <Photo
+                      src={person.hover.photo && images[person.hover.photo]}
+                      alt=""
+                      ratio="378 / 359"
+                      position={person.hover.position}
+                      crop={person.hover.crop}
+                      sizes="(max-width: 700px) 70vw, 35vw"
+                      label=""
+                    />
+                  </div>
+                )}
                 <svg class="outline" viewBox="0 0 378 359" aria-hidden="true"><path d={blob} /></svg>
               </div>
             </div>
@@ -144,6 +157,22 @@ const blob =
   .blob {
     position: relative;
     clip-path: url(#blob);
+  }
+  /* The second photo, laid over the first and faded in on hover. */
+  .hover {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  /* On the clipped blob, not its box, so only the shape itself counts. */
+  .blob:hover .hover {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hover {
+      transition: none;
+    }
   }
   /* Drawn inside the clip, as in the mockup, so only its inner half shows. */
   .outline {

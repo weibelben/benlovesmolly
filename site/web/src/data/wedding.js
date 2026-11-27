@@ -93,6 +93,8 @@ export const registries = [
 // src/assets/bridal-party/. Give a person `photo` (a file name there) to fill
 // their blob, and `position` (e.g. 'center top') to shift it in the blob, or
 // `crop` ([left, top, width, height] as percentages) to zoom in on part of it.
+// `hover` is a second photo shown while the cursor is over the first; it takes
+// the same `photo`, `position` and `crop`.
 // `partyBackground` is the photo that stays put behind the page as it scrolls.
 export const partyBackground = 'IMG_4496.JPG';
 
@@ -103,6 +105,7 @@ export const weddingParty = [
         name: 'Molly',
         role: 'Bride',
         photo: 'MollyBaby.jpg',
+        hover: { photo: '2007 Maine 411_Original.jpg', crop: [9.65, 3.05, 76.6, 96.9] },
         bio: 'This is a blurb about me: Molly Meyer Kehoe. I have known Molly my whole life because I am her and she’s me. I am cool, fun, silly, and smart. I can’t wait to party at this freaking wedding woo hoooooo!',
       },
       { name: 'Charlotte', role: 'Bridesmaid', bio: '[How Charlotte knows Molly.]' },
@@ -118,6 +121,7 @@ export const weddingParty = [
         role: 'Groom',
         photo: '2007 Maine 411_Original.jpg',
         crop: [9.65, 3.05, 76.6, 96.9],
+        hover: { photo: 'MollyBaby.jpg' },
         bio: 'Ben loves snakes, bugs, skiing, and Molly!',
       },
       { name: 'Alex', role: 'Groomsman', bio: '[How Alex knows Ben.]' },
