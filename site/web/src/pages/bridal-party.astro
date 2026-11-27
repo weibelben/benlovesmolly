@@ -1,92 +1,227 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
-import { weddingParty } from '../data/wedding.js';
+import { weddingParty, partyBackground } from '../data/wedding.js';
+import '@fontsource/gelasio/400.css';
 
-// Every image in src/assets/party/, keyed by file name.
-const files = import.meta.glob('../assets/party/*.{jpg,jpeg,png,webp,avif}', { eager: true, import: 'default' });
+// Every image in src/assets/bridal-party/, keyed by file name.
+const files = import.meta.glob('../assets/bridal-party/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG}', { eager: true, import: 'default' });
 const images = Object.fromEntries(Object.entries(files).map(([path, image]) => [path.split('/').pop(), image]));
----
-<Base title="Bridal Party">
-  <header class="page-title container">
-    <h1>Bridal Party</h1>
-    <hr class="divider" />
-  </header>
 
-  <section class="container party">
-    {weddingParty.map((column, side) => (
-      <div class="side">
-        <h2>{column.side}</h2>
-        <ul>
-          {column.people.map((person, i) => (
-            <li class="profile" style={`--order: ${i * weddingParty.length + side}`}>
-              <Photo
-                src={person.photo && images[person.photo]}
-                alt={person.name}
-                ratio="1 / 1"
-                position={person.position}
-                sizes="(max-width: 800px) 50vw, 17rem"
-                label=""
-              />
-              <div class="details">
-                <p class="eyebrow">{person.role}</p>
-                <h3>{person.name}</h3>
-                <p class="bio">{person.bio}</p>
+// Pair the sides up row by row: bride and groom, then each bridesmaid beside a
+// groomsman. On a phone the rows stack, so the order still alternates.
+const rows = Math.max(...weddingParty.map((side) => side.people.length));
+const people = Array.from({ length: rows }, (_, i) => weddingParty.map((side) => side.people[i])).flat();
+
+// The photo frame from the mockup, 378 by 359.
+const blob =
+  'M350.9 107.5C335.3 72.1 313.3 36.5 277.7 18.1C274.5 16.5 271 14.8 267.6 13.6C250.7 6.1 232.9 2.1 214.5 1.4C212 1 209.3 .7 206.5 .5C189.1-.8 173.3 2.9 158.8 9.6C132.2 17.8 106.4 30.8 84.7 47C56.1 68.4 32.5 96 18.4 129.1C10 148.5 5.3 168.9 2.7 189.9C0 211.7-1.4 234.6 3.3 256.1C11.6 293.5 42.5 323.3 76.1 339.4C111.4 356.3 150.8 361.4 189.3 356.3C230.1 350.9 269 334.7 303.9 312.9C335.3 293.3 365.6 266.8 374.4 229.2C384 187.2 367.5 145.3 350.9 107.5Z';
+---
+<Base title="Bridal Party" overlay>
+  <div class="scene">
+    <!-- Stuck behind the page, so it stays put while everything scrolls over it,
+         until the end of the scene, where the footer pushes it up. -->
+    <div class="backdrop" aria-hidden="true">
+      {images[partyBackground] && (
+        <Image src={images[partyBackground]} alt="" widths={[800, 1400, 2000, 2800]} sizes="100vw" loading="eager" />
+      )}
+    </div>
+
+    <!-- The blob shape, scaled to whatever box clips to it. -->
+    <svg class="defs" aria-hidden="true">
+      <clipPath id="blob" clipPathUnits="objectBoundingBox">
+        <path transform="scale(0.0026455 0.0027855)" d={blob} />
+      </clipPath>
+    </svg>
+
+    <div class="party">
+      <h1>Bridal Party</h1>
+
+      <ul>
+        {people.map((person) => person && (
+          <li>
+            <div class="frame">
+              <div class="blob">
+                <Photo
+                  src={person.photo && images[person.photo]}
+                  alt={person.name}
+                  ratio="378 / 359"
+                  position={person.position}
+                  crop={person.crop}
+                  sizes="(max-width: 700px) 70vw, 35vw"
+                  label=""
+                />
+                {person.hover && (
+                  <div class="hover">
+                    <Photo
+                      src={person.hover.photo && images[person.hover.photo]}
+                      alt=""
+                      ratio="378 / 359"
+                      position={person.hover.position}
+                      crop={person.hover.crop}
+                      sizes="(max-width: 700px) 70vw, 35vw"
+                      label=""
+                    />
+                  </div>
+                )}
+                <svg class="outline" viewBox="0 0 378 359" aria-hidden="true"><path d={blob} /></svg>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    ))}
-  </section>
+            </div>
+            <p class="role">{person.role}</p>
+            <h2>{person.name}</h2>
+            <p class="bio">{person.bio}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
 </Base>
 
 <style>
-  .party {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3rem;
-    padding-bottom: 4rem;
+  /* Its own stacking layer, so the backdrop sits behind the writing but not
+     behind the page itself. */
+  .scene {
+    position: relative;
+    isolation: isolate;
   }
-  .side h2 {
+  /* A screen tall and sticky, so it holds still until the scene's end (where
+     the footer starts) reaches the bottom of the window, then goes up with it.
+     It keeps its full height, since a sticky box only moves once the end of
+     its container pushes on it; the page is pulled up over it instead. */
+  .backdrop {
+    position: sticky;
+    top: 0;
+    z-index: -1;
+    height: 100vh;
+    background: #2b4a63;
+  }
+  .backdrop :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Crop from the top, so the photo's bottom edge meets the footer. */
+    object-position: center bottom;
+  }
+  /* Darken it a little so the cream writing reads over sky and trees. */
+  .backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(10 25 35 / 0.3);
+  }
+  .defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  /* Measured in the mockup's units: 1u is 1/1080 of the page width. */
+  .party {
+    --u: calc(100cqw / 1080);
+    --cream: #fffcf0;
+    container-type: inline-size;
+    margin-top: -100vh;
+    /* The header floats over the page, so start below it. */
+    padding: calc(4.5rem + 41 * var(--u)) 0 calc(240 * var(--u));
+    color: var(--cream);
     text-align: center;
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.45);
+  }
+  /* The rest is inside the container, where cqw works. */
+  .party > * {
+    --u: calc(100cqw / 1080);
+  }
+  h1 {
+    margin: 0 0 calc(39 * var(--u));
+    font-family: 'Le Studio Nocturne', cursive;
+    font-size: calc(70 * var(--u));
+    font-weight: 400;
+    line-height: calc(110 * var(--u));
+    color: inherit;
   }
   ul {
     display: grid;
-    gap: 3rem;
+    grid-template-columns: repeat(2, calc(378 * var(--u)));
+    column-gap: calc(108 * var(--u));
+    row-gap: calc(33 * var(--u));
+    justify-content: center;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .profile :global(.photo) {
-    width: 50%;
-    margin: 0 auto;
+
+  .frame {
+    position: relative;
   }
-  .details {
-    padding-top: 1.25rem;
-    text-align: center;
+  .blob {
+    position: relative;
+    clip-path: url(#blob);
   }
-  .profile .eyebrow {
-    margin-bottom: 0.25rem;
+  /* The second photo, laid over the first and faded in on hover. */
+  .hover {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  /* On the clipped blob, not its box, so only the shape itself counts. */
+  .blob:hover .hover {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hover {
+      transition: none;
+    }
+  }
+  /* Drawn inside the clip, as in the mockup, so only its inner half shows. */
+  .outline {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--cream);
+    stroke-width: 6;
+  }
+
+  .role {
+    margin: calc(23 * var(--u)) 0 0;
+    font-family: 'Jost', sans-serif;
+    font-size: max(calc(20 * var(--u)), 13px);
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  /* The script's capitals and tails reach past its line, so pad the name a
+     little; the mockup lets the tails tuck in close to the blurb. */
+  h2 {
+    margin: 0;
+    padding: 0.45em 0 0.55em;
+    font-family: 'Le Studio Nocturne', cursive;
+    font-size: max(calc(40 * var(--u)), 30px);
+    font-weight: 400;
+    line-height: 1;
+    color: inherit;
   }
   .bio {
     margin: 0;
-    color: var(--muted);
+    font-family: 'Gelasio', serif;
+    font-size: max(calc(15 * var(--u)), 14px);
+    line-height: 1.4;
   }
-  /* On one column, unwrap the sides and alternate them: bride, groom, bridesmaid, groomsman... */
-  @media (max-width: 800px) {
-    .party {
-      grid-template-columns: 1fr;
-    }
-    .side,
+
+  /* On a phone, one column, bigger. */
+  @media (max-width: 700px) {
     ul {
-      display: contents;
+      grid-template-columns: calc(378 * var(--u));
+      row-gap: calc(60 * var(--u));
     }
-    .side h2 {
-      display: none;
+    .party > * {
+      --u: calc(100cqw / 540);
     }
-    .profile {
-      order: var(--order);
+    h1 {
+      font-size: calc(55 * var(--u));
     }
   }
 </style>

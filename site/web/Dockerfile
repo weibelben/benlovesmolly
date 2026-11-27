@@ -6,6 +6,12 @@ COPY . .
 # Paid fonts come from the private repo (the `private` build context in
 # compose.yaml), not this public one. Keep in step with `make fonts`.
 COPY --from=private ["Le-Studio-Nocturne-Nostalgic-Set/Le Studio Nocturne.woff2", "src/fonts/le-studio-nocturne.woff2"]
+# Each page's photos, also from the private repo. Keep in step with `make photos`.
+COPY --from=private Home src/assets/home
+COPY --from=private BridalParty src/assets/bridal-party
+COPY --from=private OurStory src/assets/our-story
+COPY --from=private Logistics src/assets/logistics
+COPY --from=private Registry src/assets/registry
 RUN npm run build
 
 # Runs as a non-root user; nginx.conf still listens on 80, which Docker

@@ -1,6 +1,11 @@
 ---
 import '../styles/global.css';
-import { couple, wedding, rsvpUrl } from '../data/wedding.js';
+import Photo from '../components/Photo.astro';
+import { couple, footer, rsvpUrl } from '../data/wedding.js';
+
+// Every image in src/assets/home/, keyed by file name, for the footer photo.
+const homeFiles = import.meta.glob('../assets/home/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG}', { eager: true, import: 'default' });
+const homeImages = Object.fromEntries(Object.entries(homeFiles).map(([path, image]) => [path.split('/').pop(), image]));
 
 // `overlay` lays a see-through header over a full-width photo at the top of the
 // page; it turns solid once the visitor scrolls.
@@ -55,10 +60,15 @@ const names = `${couple.first} & ${couple.second}`;
       <slot />
     </main>
 
+    <!-- The writing is placed in the mockup's 1080-wide coordinates, so the
+         whole footer scales with the page like the design. -->
     <footer class="site-footer">
-      <p class="signoff">{couple.first} and {couple.second}</p>
-      <p class="eyebrow">{wedding.dateShort}</p>
-      <a class="button" href={rsvpUrl}>RSVP</a>
+      <Photo src={homeImages[footer.photo]} crop={footer.crop} ratio={null} alt="" sizes="100vw" />
+      <svg class="footer-writing" viewBox="0 0 1080 149.25" role="img" aria-label={`${footer.date}. ${couple.first} and ${couple.second}. ${footer.place}.`}>
+        <text class="small" x="67.6" y="79.9" textLength="204" lengthAdjust="spacingAndGlyphs">{footer.date}</text>
+        <text class="names" x="402" y="84" textLength="278" lengthAdjust="spacingAndGlyphs">{couple.first} and {couple.second}</text>
+        <text class="small" x="820.5" y="79.9" textLength="176" lengthAdjust="spacingAndGlyphs">{footer.place}</text>
+      </svg>
     </footer>
 
     <script>
@@ -82,6 +92,12 @@ const names = `${couple.first} & ${couple.second}`;
 </html>
 
 <style is:global>
+  /* Paid script font, copied in from the private repo; see `make fonts`. */
+  @font-face {
+    font-family: 'Le Studio Nocturne';
+    src: url('../fonts/le-studio-nocturne.woff2') format('woff2');
+    font-display: swap;
+  }
   .container {
     max-width: 68rem;
     margin: 0 auto;
@@ -105,7 +121,8 @@ const names = `${couple.first} & ${couple.second}`;
     position: sticky;
     top: 0;
     z-index: 50;
-    background: var(--paper);
+    /* Half see-through, so the page shows through as it scrolls under. */
+    background: color-mix(in srgb, var(--paper) 50%, transparent);
     border-bottom: 1px solid var(--line);
   }
   .site-header.overlay {
@@ -119,7 +136,7 @@ const names = `${couple.first} & ${couple.second}`;
       border-color 0.3s ease;
   }
   .site-header.overlay.solid {
-    background: var(--paper);
+    background: color-mix(in srgb, var(--paper) 50%, transparent);
     border-bottom-color: var(--line);
   }
   /* Light links with a soft shadow so they read over the photo. */
@@ -190,18 +207,29 @@ const names = `${couple.first} & ${couple.second}`;
     display: none;
   }
   .site-footer {
-    padding: 4rem 1.25rem;
-    text-align: center;
-    border-top: 1px solid var(--line);
+    position: relative;
+    aspect-ratio: 1080 / 149.25;
+    overflow: hidden;
   }
-  .signoff {
-    margin: 0 0 0.25rem;
-    font-family: var(--serif);
-    font-size: 2rem;
-    font-style: italic;
+  .site-footer :global(.photo) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
-  .site-footer .eyebrow {
-    margin-bottom: 1.75rem;
+  .footer-writing {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Le Studio Nocturne', cursive;
+    fill: #000;
+  }
+  .footer-writing .small {
+    font-size: 22px;
+  }
+  .footer-writing .names {
+    font-size: 38px;
   }
   @media (max-width: 900px) {
     .header-inner {
