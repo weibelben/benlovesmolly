@@ -2,7 +2,10 @@
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Tile from '../components/Tile.astro';
+import Lines from '../components/Lines.astro';
 import '@fontsource/gelasio/400.css';
+import '@fontsource/gelasio/700.css';
+import '@fontsource/jost/700.css';
 import '@fontsource/montserrat/800.css';
 import { story } from '../data/wedding.js';
 
@@ -22,40 +25,57 @@ const edge = (flip, dy) => {
   return `${d} V0 Z`;
 };
 
-// A paragraph is a string, or a list of lines to break exactly there.
-const lines = (text) => (Array.isArray(text) ? text : [text]);
+// A row of photos: each takes its share of the width, the wide ones more.
+const columns = (photos) => photos.map((photo) => (photo.wide ? '293.4fr' : '164fr')).join(' ');
 ---
 <Base title={story.title} overlay>
   <div class="story">
   <header class="hero">
-    <Photo src={images[story.hero.file]} alt={story.hero.alt} ratio={null} position="50% 100%" />
+    <!-- The whole photo, larger than the hero and cropped by it as in the
+         mockup, with the title and the two lines curving around the couple
+         drawn over it. Coordinates are the mockup's, so they stay lined up
+         with the photo however it's cropped. -->
+    <div class="stage">
+      <Photo src={images[story.hero.file]} alt={story.hero.alt} ratio={null} />
+      <svg class="lettering" viewBox="0.24 -159.92 1173.2 782.65" aria-hidden="true">
+        <path id="left-line" d="M32.4 488.5 C39.8 488.2 64.9 488.9 76.8 487.0 C88.7 485.2 93.3 483.9 104.0 477.4 C114.7 470.9 130.6 459.2 141.1 448.0 C151.6 436.8 160.6 420.0 167.0 410.2 C173.4 400.3 174.5 396.4 179.6 388.7 C184.8 380.9 191.6 371.5 197.9 363.7 C204.3 355.8 210.1 349.2 217.7 341.8 C225.3 334.3 235.1 325.6 243.5 319.0 C251.9 312.3 257.7 308.1 267.9 301.8 C278.2 295.4 295.8 286.2 304.9 280.7 C314.0 275.2 318.0 272.0 322.6 268.9 C327.1 265.8 330.7 263.1 332.3 261.9" />
+        <path id="right-line" d="M572.6 175.1 C578.4 171.5 595.9 158.2 607.4 153.8 C618.9 149.4 630.8 148.4 641.7 148.8 C652.7 149.1 663.8 152.1 673.2 155.9 C682.6 159.8 690.8 164.8 698.4 172.0 C706.0 179.1 711.8 187.9 718.9 198.8 C726.0 209.7 734.0 226.9 740.9 237.5 C747.8 248.1 754.2 255.2 760.1 262.3 C766.1 269.4 769.4 273.2 776.7 280.2 C784.0 287.3 796.2 298.2 804.0 304.6 C811.8 311.1 814.9 313.4 823.4 318.9 C832.0 324.5 845.3 332.3 855.1 337.8 C864.9 343.2 872.3 346.7 882.1 351.7 C891.9 356.8 904.9 362.9 913.7 368.3 C922.4 373.7 927.8 377.9 934.8 384.0 C941.8 390.1 949.3 397.4 955.9 404.9 C962.4 412.5 969.8 423.5 973.9 429.3 C978.0 435.0 979.3 437.7 980.4 439.3" />
+        <text class="title" x="24.7" y="162.4" textLength="360.5" lengthAdjust="spacingAndGlyphs">{story.title}</text>
+        <text class="line"><textPath href="#left-line" textLength="386" lengthAdjust="spacingAndGlyphs">{story.hero.left}</textPath></text>
+        <text class="line"><textPath href="#right-line" textLength="528" lengthAdjust="spacingAndGlyphs">{story.hero.right}</textPath></text>
+      </svg>
+    </div>
     <h1 class="visually-hidden">{story.title}</h1>
     <p class="visually-hidden">{story.hero.left} {story.hero.right}</p>
-    <!-- The title and the two lines curving around the couple. Coordinates are
-         the mockup's, over the whole photo, and the drawing is cropped the
-         same way as the photo so they stay lined up at any screen shape. -->
-    <svg class="lettering" viewBox="0 -147.2 1080 720" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <path id="left-line" d="M16.8 461.6 C22.4 461.7 38.6 463.9 50.5 462.0 C62.4 460.1 76.7 456.3 88.4 450.4 C100.1 444.5 110.1 438.4 120.6 426.5 C131.1 414.6 140.6 394.8 151.4 378.9 C162.2 362.9 173.7 344.7 185.6 330.8 C197.5 316.9 210.5 305.3 222.6 295.4 C234.7 285.5 246.9 277.9 258.0 271.3 C269.1 264.7 277.6 262.3 289.1 255.7 C300.6 249.1 314.4 240.7 327.0 231.7 C339.6 222.7 355.5 213.9 364.5 201.6 C373.5 189.2 377.6 166.9 380.9 157.6 C384.2 148.3 383.8 147.9 384.4 146.0" />
-      <path id="right-line" d="M518.5 160.8 C523.3 157.7 536.6 146.3 547.1 141.9 C557.6 137.5 569.4 134.5 581.4 134.4 C593.4 134.3 607.9 137.0 619.1 141.6 C630.3 146.2 639.7 151.6 648.8 161.8 C657.9 172.0 665.0 189.4 673.7 202.8 C682.5 216.2 690.9 229.7 701.3 242.3 C711.7 254.9 723.1 267.1 735.9 278.5 C748.7 289.9 764.6 301.5 778.3 310.4 C792.0 319.3 803.9 324.0 818.2 331.8 C832.6 339.6 850.5 347.4 864.4 357.2 C878.3 367.0 892.5 381.0 901.7 390.6 C910.9 400.2 916.2 410.0 919.8 414.9 C923.4 419.8 922.8 418.9 923.4 419.7" />
-      <text class="title" x="25" y="233.6" transform="rotate(-17 25 233.6)" textLength="345" lengthAdjust="spacingAndGlyphs">{story.title}</text>
-      <text class="line"><textPath href="#left-line" textLength="385" lengthAdjust="spacingAndGlyphs">{story.hero.left}</textPath></text>
-      <text class="line"><textPath href="#right-line" textLength="526" lengthAdjust="spacingAndGlyphs">{story.hero.right}</textPath></text>
-    </svg>
   </header>
 
-  {story.sections.map(({ theme, years, blurb, intro, grid, tiles, strip, outro, wave: bottom }, i) => (
+  {story.sections.map(({ theme, quote, years, blurb, story: text, intro, grid, tiles, rows, strip, outro, wave: bottom }, i) => (
     <section class:list={['part', theme, { first: i === 0 }]}>
       {i === 0 && (
         <svg class="wave top" viewBox="0 0 1080 31" preserveAspectRatio="none" aria-hidden="true"><path d={`M0 0 ${wave} V31 H0 Z`} /></svg>
       )}
-      {years && (
+      {quote && (
+        <Fragment>
+          <p class="quote"><Lines text={quote} script /></p>
+          <div class="dots"></div>
+        </Fragment>
+      )}
+
+      {years && blurb && (
         <div class="band">
           <h2 class="years">{years}</h2>
-          <p class="blurb">{lines(blurb).map((line, j) => <Fragment>{j > 0 && <br />}{line}</Fragment>)}</p>
+          <p class="blurb"><Lines text={blurb} /></p>
         </div>
       )}
 
-      {intro?.map((text) => <p class="text intro">{lines(text).map((line, j) => <Fragment>{j > 0 && <br />}{line}</Fragment>)}</p>)}
+      {years && text && (
+        <div class="flow">
+          <h2 class="years">{years}</h2>
+          <p><Lines text={text} /></p>
+        </div>
+      )}
+
+      {intro?.map((para) => <p class="text intro"><Lines text={para} /></p>)}
 
       {grid && (
         <ul class:list={['grid', { square: tiles === 'square' }]}>
@@ -71,6 +91,28 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
         </ul>
       )}
 
+      {rows?.map((row) => (
+        <figure class="row">
+          <ul class:list={{ six: row.photos.length > 5 }} style={`grid-template-columns: ${columns(row.photos)}`}>
+            {row.photos.map((photo) => (
+              <li class="frame">
+                {photo.file ? (
+                  <Tile {...photo} src={images[photo.file]} sizes={photo.wide ? '28vw' : '16vw'} />
+                ) : (
+                  <div class="blank" title={photo.missing}></div>
+                )}
+              </li>
+            ))}
+          </ul>
+          {row.caption && (
+            <figcaption>
+              <strong>{row.caption[0]}</strong> {row.caption[1]}
+              <svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0.5 15.5 8.5H10.6V15.5H5.4V8.5H.5Z" /></svg>
+            </figcaption>
+          )}
+        </figure>
+      ))}
+
       {strip && (
         <ul class="strip">
           {strip.map((photo) => (
@@ -81,7 +123,7 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
         </ul>
       )}
 
-      {outro?.map((text) => <p class="text outro">{lines(text).map((line, j) => <Fragment>{j > 0 && <br />}{line}</Fragment>)}</p>)}
+      {outro?.map((para) => <p class="text outro"><Lines text={para} /></p>)}
 
       {bottom && (
         <svg class="wave bottom" viewBox="0 0 1080 41.7" preserveAspectRatio="none" aria-hidden="true" style={`--edge: var(--${bottom.edge})`}>
@@ -91,7 +133,6 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
       )}
     </section>
   ))}
-  {story.tail && <div class:list={['part', 'tail', story.tail]}></div>}
   </div>
 
   <dialog class="lightbox" aria-label="Photo viewer">
@@ -166,13 +207,13 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
     --citron: #c5cc84;
     --slate: #616f6f;
     --teal: #294b4e;
-    --red: #c41d27;
+    --mist: #90b2b3;
     container-type: inline-size;
   }
   /* Each section's background, text and heading colours. */
   .plum {
     --bg: var(--deep-plum);
-    --years: var(--citron);
+    --years: var(--cream);
     color: var(--cream);
   }
   .slate {
@@ -184,8 +225,16 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
     --years: var(--teal);
     color: var(--teal);
   }
-  .red {
-    --bg: var(--red);
+  .mist {
+    --bg: var(--mist);
+    --years: var(--teal);
+    --dots: #7da9ab;
+    color: var(--teal);
+  }
+  .forest {
+    --bg: var(--teal);
+    --years: var(--cream);
+    --dots: var(--mist);
     color: var(--cream);
   }
   .visually-hidden {
@@ -197,11 +246,23 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
     white-space: nowrap;
   }
 
+  /* The mockup's window onto the photo: 1080 by 573, with the photo 1173.2
+     wide, its left edge at the window's and its top 159.92 above it. */
   .hero {
     position: relative;
-  }
-  .hero :global(.photo) {
+    overflow: hidden;
     aspect-ratio: 1080 / 573;
+  }
+  .stage {
+    position: absolute;
+    top: calc(-159.92 * var(--u));
+    left: 0;
+    width: calc(1173.2 * var(--u));
+    aspect-ratio: 3 / 2;
+  }
+  .stage :global(.photo) {
+    width: 100%;
+    height: 100%;
   }
   .lettering {
     position: absolute;
@@ -224,8 +285,12 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
   /* Phones show the whole photo, which leaves room above the couple for the
      title below the header. */
   @media (max-width: 600px) {
-    .hero :global(.photo) {
+    .hero {
       aspect-ratio: 3 / 2;
+    }
+    .stage {
+      top: 0;
+      width: 100%;
     }
   }
 
@@ -303,12 +368,101 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
   .slate {
     padding-bottom: calc(10.2 * var(--u));
   }
-  /* Room left for what comes next in the design. */
+  .mist {
+    padding-bottom: calc(11.6 * var(--u));
+  }
   .citron {
+    padding-bottom: calc(15.2 * var(--u));
+  }
+  .forest {
     padding-bottom: calc(60 * var(--u));
   }
-  .tail {
-    height: calc(160 * var(--u));
+
+  /* A quote in script, centred, with a dotted line under it. */
+  .quote {
+    margin: 0;
+    padding-top: calc(28.8 * var(--u));
+    font-family: 'Le Studio Nocturne', cursive;
+    font-size: calc(29.8 * var(--u));
+    line-height: calc(42 * var(--u));
+    text-align: center;
+  }
+  /* Dots 5.4u across, 11.24u apart. */
+  /* This copy of the font draws the f of "for" further right than Canva's, so
+     its tail hits the "ll" of "challenge" below. Wider spaces on the second
+     line move "challenge" right, clear of it. */
+  .forest .quote :global(.line:last-of-type) {
+    word-spacing: 0.15em;
+  }
+  .dots {
+    height: calc(5.4 * var(--u));
+    margin: calc(28.9 * var(--u)) 0 calc(18.5 * var(--u));
+    background: radial-gradient(circle closest-side, var(--dots) 92%, transparent) calc(2.6 * var(--u)) 0 / calc(11.24 * var(--u)) 100% repeat-x;
+  }
+
+  /* The years on the left, with a long paragraph flowing beside and under them. */
+  /* 30.5u from the dots, whose own 18.5u margin below them folds into this. */
+  .flow {
+    margin: calc(30.5 * var(--u)) 0 calc(22 * var(--u));
+    padding: 0 calc(62 * var(--u));
+    font-family: 'Gelasio', Georgia, serif;
+    font-size: calc(18 * var(--u));
+    line-height: calc(24.7 * var(--u));
+    font-variant-numeric: oldstyle-nums;
+  }
+  .flow .years {
+    float: left;
+    width: calc(282 * var(--u));
+    margin-top: calc(2.5 * var(--u));
+    padding-left: calc(8 * var(--u));
+    text-align: left;
+  }
+  .flow p {
+    margin: 0;
+  }
+
+  /* Photos side by side, each in a cream frame, with a caption under them. */
+  .row {
+    margin: 0;
+  }
+  .row + .row {
+    margin-top: calc(16.7 * var(--u));
+  }
+  .row ul {
+    display: grid;
+    grid-auto-rows: calc(219.6 * var(--u));
+    gap: calc(16.7 * var(--u));
+    margin: 0;
+    padding: 0 calc(31.9 * var(--u));
+    list-style: none;
+  }
+  .row ul.six {
+    gap: calc(13 * var(--u));
+    padding: 0 calc(15.6 * var(--u));
+  }
+  .row figcaption {
+    margin: calc(9 * var(--u)) 0 calc(38.1 * var(--u));
+    font-family: 'Jost', var(--sans);
+    font-size: calc(22 * var(--u));
+    line-height: calc(30 * var(--u));
+    letter-spacing: 0.02em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .row:last-of-type figcaption {
+    margin-bottom: 0;
+  }
+  .row:has(figcaption) + .row {
+    margin-top: 0;
+  }
+  .row strong {
+    font-weight: 700;
+  }
+  .arrow {
+    width: calc(15.5 * var(--u));
+    height: calc(15.5 * var(--u));
+    margin-left: calc(4 * var(--u));
+    fill: currentColor;
   }
   .grid,
   .strip {
@@ -350,7 +504,7 @@ const lines = (text) => (Array.isArray(text) ? text : [text]);
   /* A space saved for a photo that hasn't been added yet. */
   .blank {
     height: 100%;
-    background: var(--plum);
+    background: color-mix(in srgb, currentColor 18%, transparent);
   }
 
   .lightbox {

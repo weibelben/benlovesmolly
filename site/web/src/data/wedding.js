@@ -209,22 +209,27 @@ export const story = {
     right: 'It’s where we grew up, made lifelong friendships, and fell in love.',
   },
   // The page below the big photo: a run of sections, one after another. Each has
-  // a colour (`theme`: plum, slate, citron or red) and any of, in this order:
+  // a colour (`theme`: plum, slate, mist, citron or forest) and any of, in this
+  // order:
+  //   quote          lines of a quote in script, with a dotted line under it
   //   years + blurb  the heading row, years on the left and a note beside them
+  //   years + story  the years with a long paragraph wrapping around them
   //   intro          paragraphs of text
   //   grid           four columns of photos, filled left to right; the `big`
   //                  photo takes two columns and two rows in the middle.
   //                  `tiles: 'square'` makes them square rather than wide.
+  //   rows           rows of photos side by side, each with an optional
+  //                  caption: [bold part, the rest]. A `wide` photo is wider.
   //   strip          five photos side by side in one frame
   //   outro          paragraphs of text
   //   wave           the wavy bottom edge: the colour of the thin line under it,
   //                  and `flip` to start it high instead of low at the sides
-  // A paragraph is a string, or a list of lines to break exactly there.
-  // After the last section comes a plain band in the `tail` colour.
+  // A paragraph is a string, or a list of lines to break exactly there. Wrap
+  // words in **double stars** to make them bold.
   sections: [
     {
       theme: 'plum',
-      years: '1997 – 2018',
+      years: '1997–2018',
       blurb:
         'Our story doesn’t really start with a specific moment, rather a specific community of people who love us both unconditionally and made the island our home.',
       grid: [
@@ -249,7 +254,7 @@ export const story = {
         { file: 'WeibelDavid.jpg', alt: 'A man hugging a girl by the water.', crop: [18.7, 10.2, 64.1, 85.7] },
         { file: 'GuyverHudsonFiggy.jpg', alt: 'Three kids standing on a path in the woods.', crop: [13, 19.2, 60.6, 80.9] },
       ],
-      wave: { edge: 'citron' },
+      wave: { edge: 'cream' },
     },
     {
       theme: 'slate',
@@ -277,27 +282,144 @@ export const story = {
       ],
       outro: [
         [
-          'All of our favorite memories happened together: hanging out at Freddie’s tree fort, playing the game at',
-          'Preble, scraping yellow paint, competing in the birthday Amazing Race, and late nights on the dock.',
-          'Cranberry wasn’t Cranberry without each other. We’ve always loved each other, but as some point it shifted:',
+          'All of our favorite memories are together: playing flashlight tag, hanging out at Freddie’s tree fort, playing',
+          'the Preble game, scraping yellow paint, competing in the Amazing Race, and late nights on the dock.',
+          '**Cranberry wasn’t Cranberry without each other…**',
         ],
         [
-          'Maybe it was in 2012 under a tree at a Sullivan cocktail party…',
-          'Maybe it was in 2015 when we had our first kiss on the dock…',
-          'Maybe it was in 2018 when Molly decided to go to Wisconsin…',
+          '…from Molly’s crush on Ben to becoming real friends, and from Ben’s crush on Molly to dating.',
+          'A seed was planted under a tree at a Sullivan cocktail party in 2012, and things shifted in 2015 on the floats',
+          'where we had our first kiss. It wasn’t for another three years, in Madison, that everything really changed.',
         ],
       ],
-      wave: { edge: 'red', flip: true },
+      wave: { edge: 'deep-plum', flip: true },
+    },
+    {
+      theme: 'mist',
+      quote: ['“I think it’s pretty obvious, but I’m falling in love with you.” –Ben'],
+      years: '2018–2024',
+      blurb: [
+        'On **August 30, 2018**, Ben told Molly he loved her. She said, “I love you too.”',
+        'For six years we dated in a pattern: one year in person, one year long distance.',
+      ],
+      rows: [
+        {
+          caption: ['Year 1:', 'In person (2018–2019)'],
+          photos: [
+            { file: 'Year1_2018_1.jpg', alt: 'Ben and Molly in costume at a party.', crop: [19.54, 16.26, 79.8, 80.25] },
+            { file: 'Year1_2018_2.jpg', alt: 'Ben in a suit and Molly in a red dress.', crop: [7.28, 13.48, 81.14, 81.36] },
+            { file: 'Year1_2019_3.jpg', alt: 'Ben and Molly in ski helmets and goggles.', crop: [0.3, 15.07, 99.32, 55.79], wide: true },
+            { file: 'Year1_2019_4.jpg', alt: 'Molly and Ben in a hallway, Molly giving a thumbs up.', crop: [0.64, 0.41, 98.93, 99.29] },
+            { file: 'Year1_2019_5.jpg', alt: 'Ben and Molly dressed up in front of a painting.', crop: [0.48, 12.09, 87.11, 87.43] },
+          ],
+        },
+        {
+          caption: ['Year 2:', 'Long distance (2019–2020)'],
+          photos: [
+            { file: 'Year2_2019_1.jpg', alt: 'Ben and Molly hugging in a doorway.', crop: [0.54, 0.41, 98.93, 99.28] },
+            { file: 'Year2_2020_2.jpg', alt: 'Ben and Molly in Wisconsin jerseys at a tailgate.', crop: [0.54, 0.41, 99.13, 99.28] },
+            { file: 'Year2_2020_5.jpg', alt: 'Molly, a golden retriever and Ben in a car.', crop: [0.31, 0.41, 99.32, 99.29], wide: true },
+            { file: 'Year2_2020_3.jpg', alt: 'A selfie of Molly and Ben.', crop: [1.1, 0.41, 98.49, 98.95] },
+            { file: 'Year2_2020_4.jpg', alt: 'Ben and Molly on a lookout over the water.', crop: [21.67, 0.41, 55.49, 98.95] },
+          ],
+        },
+        {
+          caption: ['Year 3:', 'In person (2020–2021)'],
+          photos: [
+            { file: 'Year3_2021_1.jpg', alt: 'A selfie of Ben and Molly under a blue sky.', crop: [0.88, 0.41, 98.05, 99.29] },
+            { file: 'Year3_2021_4.jpg', alt: 'Ben and Molly hugging by a wooden fence.', crop: [0.54, 0.41, 99.13, 99.29] },
+            { file: 'Year3_2021_3.jpg', alt: 'Molly and Ben from behind, looking out over the water from a boat.', crop: [0.31, 0.41, 99.32, 99.29], wide: true },
+            { file: 'Year3_2021_5.jpg', alt: 'Ben and Molly hugging.', crop: [0.64, 0.41, 98.93, 99.29] },
+            { file: 'Year3_2021_2.jpg', alt: 'Ben and Molly floating on a lake.', crop: [31.55, 4.78, 49.69, 88.76] },
+          ],
+        },
+        {
+          caption: ['Year 4:', 'Long distance (2021–2022)'],
+          photos: [
+            { file: 'Year4_2021_1.jpg', alt: 'Ben and Molly with drinks by the water.', crop: [34.34, 0.41, 55.49, 99.29] },
+            { file: 'Year4_2022_3.jpg', alt: 'A selfie of Ben and Molly on a hike.', crop: [0.79, 0.41, 98.24, 99.29] },
+            { file: 'Year4_2022_2.jpg', alt: 'Ben kissing Molly’s cheek under a straw hat.', crop: [5.94, 0.41, 88.14, 99.29], wide: true },
+            { file: 'Year4_2022_4.jpg', alt: 'Ben and Molly by the water at sunset.', crop: [19.18, 17.91, 74.62, 74.91] },
+            { file: 'Year4_2022_5.jpg', alt: 'A selfie of Ben and Molly laughing.', crop: [0.64, 0.41, 98.93, 99.29] },
+          ],
+        },
+        {
+          caption: ['Year 5:', 'In person (2022–2023)'],
+          photos: [
+            { file: 'Year5_2023_3.jpg', alt: 'Molly and Ben in winter coats in front of a snowy wall.', crop: [29.27, 11.36, 43.21, 87.17] },
+            { file: 'Year5_2022_1.jpg', alt: 'Ben and Molly on a rocky overlook above a lake.', crop: [10.78, 22.29, 75.28, 75.49] },
+            { file: 'Year5_2023_5.jpg', alt: 'Ben and Molly with backpacks on a riverbed below the mountains.', crop: [11.88, 21.01, 76.73, 76.47], wide: true },
+            { file: 'Year5_2023_4.jpg', alt: 'Ben and Molly in ski gear in the snow.', crop: [23.39, 16.23, 41.41, 83.45] },
+            { file: 'Year5_2022_2.jpg', alt: 'Ben in a red shirt and Molly in black on a sunny lawn.', crop: [5.57, 4, 86.08, 86.4] },
+          ],
+        },
+        {
+          caption: ['Year 6:', 'Long distance (2023–2024)'],
+          photos: [
+            { file: 'Year6_2023_1.jpg', alt: 'Molly and Ben at a table with a friend.', crop: [0.64, 0.41, 98.93, 99.28] },
+            { file: 'Year6_2023_3.jpg', alt: 'Ben and Molly at sunset above a city.', crop: [14.14, 23.74, 75.8, 76.08] },
+            { file: 'Year6_2024_5.jpg', alt: 'Ben and Molly with backpacks by a green mountain lake.', crop: [0.3, 0.41, 99.32, 99.29], wide: true },
+            { file: 'Year6_2024_4.jpg', alt: 'Ben in a cream suit and Molly in a flowered dress at a garden party.', crop: [0.52, 1.06, 94.65, 94.79] },
+            { file: 'Year6_2023_2.jpg', alt: 'Molly and Ben hugging at night.', crop: [13.7, 14.73, 84.42, 84.9] },
+          ],
+        },
+      ],
+      wave: { edge: 'slate' },
     },
     {
       theme: 'citron',
-      years: '2018–2024',
+      years: '2024–2025',
       blurb: [
-        'On August 30, 2018, Ben told Molly he was falling in love with her.',
-        'For six years we dated in a pattern: one year in-person, one year long-distance.',
+        'Molly moved into Ben’s house on August 27, 2024. With our CRV, Osito, the first',
+        'year living together was full of yoga, camping, travel, friends, and lots of love.',
       ],
-      wave: { edge: 'teal' },
+      rows: [
+        {
+          photos: [
+            { file: 'Year7_2024_1.jpg', alt: 'Ben in a linen suit and Molly in a dark dress on a street.', crop: [8.74, 20.74, 74.62, 75.1] },
+            { file: 'Year7_2024_4.jpg', alt: 'Ben and Molly at a café table.', crop: [17.92, 0.73, 79.06, 78.95], wide: true },
+            { file: 'Year7_2024_3.jpg', alt: 'Ben and Molly on a lawn at an event.', crop: [7.71, 15.1, 82.98, 82.97] },
+            { file: 'Year7_2025_9.jpg', alt: 'Ben and Molly by the water at sunset.', crop: [20.44, 25.3, 68.54, 68.92] },
+            { file: 'Year7_2025_5.jpg', alt: 'Ben and Molly wearing race medals on a beach.', crop: [10.16, 14.58, 80.68, 81.13] },
+          ],
+        },
+        {
+          photos: [
+            { file: 'Year7_2025_6.jpg', alt: 'Ben and Molly hugging in the snow.', crop: [14.68, 16.19, 79.51, 79.81] },
+            { file: 'Year7_2025_7.jpg', alt: 'Ben and Molly by a lake below snowy mountains.', crop: [18.74, 21.26, 69.11, 69.24] },
+            { file: 'Year7_2024_2.jpg', alt: 'Ben in a tux and Molly in a blue dress in a garden.', crop: [0.64, 0.41, 98.93, 99.29] },
+            { file: 'Year7_2025_8.jpg', alt: 'Ben and Molly in sunglasses on a boat.', crop: [0.3, 0.41, 99.32, 99.29], wide: true },
+            { file: 'Year7_2025_10.jpg', alt: 'Ben and Molly smiling in a cabin.', crop: [12.5, 18.23, 79.22, 79.59] },
+          ],
+        },
+      ],
+      wave: { edge: 'mist', flip: true },
+    },
+    {
+      theme: 'forest',
+      quote: ['“Not only do I love you for all that you are,', 'I love you because you challenge me.” –Ben'],
+      years: '2025–now',
+      story: [
+        'On **August 30, 2025**, as we were heading out for brunch to celebrate our 7-year',
+        'dating anniversary, Ben put on a collared shirt. Immediately suspicious, Molly',
+        'changed out of her sweatpants. Still, she was stunned when Ben got down on one knee and proposed in our partially',
+        'constructed mudroom with a ring he made. Ben suggested we live in a bubble for the day, but Molly immediately',
+        'FaceTimed Katy and Jim. After several more calls, we finally made it to brunch. We spent the rest of the day blackberry',
+        'picking—we still have gallon bags of berries in our freezer—and then Molly made a ring for Ben too. Best day ever!',
+      ],
+      rows: [
+        {
+          caption: ['August 30, 2025:', 'Proposal day!!!'],
+          photos: [
+            { file: 'Year8_2025_Proposal5.jpg', alt: 'A footprint drawn on the floor, marking where Ben proposed.', crop: [9.58, 8.83, 76.99, 77.28] },
+            { file: 'Year8_2025_Proposal3_1.jpg', alt: 'Molly laughing with a mimosa at brunch.', crop: [0.54, 0.41, 99.13, 99.29] },
+            { file: 'Year8_2025_Proposal1.jpg', alt: 'Ben and Molly in the doorway of the mudroom.', crop: [9.59, 10.76, 65.86, 44.51] },
+            { file: 'Year8_2025_Proposal2.jpg', alt: 'Molly covering her face, a ring on her finger.', crop: [0.54, 2.75, 98.93, 74.15] },
+            { file: 'Year8_2025_Proposal4.jpg', alt: 'Molly showing her ring, Ben showing his behind her.', crop: [0.64, 0.41, 98.93, 99.29] },
+            { file: 'Year8_2025_Proposal3_2.jpg', alt: 'A bucket full of blackberries.', crop: [32.47, 24.12, 48.59, 48.82] },
+          ],
+        },
+      ],
     },
   ],
-  tail: 'red',
 };

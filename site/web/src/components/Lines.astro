@@ -1,0 +1,30 @@
+---
+// A paragraph's text for the Our Story page: a string, or a list of lines to
+// break exactly there. Words in **double stars** come out bold.
+// `script` is for quotes in the script font, whose copy here makes the dash
+// wider than Canva's, so it's pulled in to match. Each line is wrapped in a
+// span, so the page can space out one line's words.
+const { text, script = false } = Astro.props;
+const lines = Array.isArray(text) ? text : [text];
+// Splitting on the starred parts leaves them at the odd places.
+const parts = (line) => line.split(/\*\*(.+?)\*\*/);
+// Likewise, splitting on the dash leaves it at the odd places.
+const nudged = (part) => (script ? part.split(/(–)/) : [part]);
+---
+{lines.map((line, i) => (
+  <Fragment>
+    {i > 0 && <br />}
+    <span class="line">
+      {parts(line).map((part, j) => {
+        const pieces = nudged(part).map((piece, k) => (k % 2 ? <span class="narrow-dash">{piece}</span> : piece));
+        return j % 2 ? <strong>{pieces}</strong> : pieces;
+      })}
+    </span>
+  </Fragment>
+))}
+
+<style>
+  .narrow-dash {
+    margin-right: -0.25em;
+  }
+</style>
